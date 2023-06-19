@@ -1,5 +1,5 @@
 {
-  "name": "timekeeper-frontend",
+  "name": "claimsmanger-frontend",
   "version": "2.0.0",
   "private": true,
   "proxy": "http://127.0.0.1:5000",
@@ -24,7 +24,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts --max_old_space_size=4096 build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
