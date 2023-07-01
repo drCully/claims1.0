@@ -47,7 +47,7 @@ const Header = () => {
       <SHeaderFixed>
         <SHeader>
           <SLeft>
-            <SLogoLink to='/timesheets' onClick={menuCloseHandler}>
+            <SLogoLink to='/timeslips' onClick={menuCloseHandler}>
               <SLogo src={LogoImg}></SLogo>
             </SLogoLink>
             <SBrand>

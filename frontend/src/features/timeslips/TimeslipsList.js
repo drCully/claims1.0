@@ -1,52 +1,88 @@
-import { useState } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { format } from 'date-fns'
 import { SButtonLink } from '../../styles/buttonStyles'
 import { s } from '../../styles/variables'
 import { SFixedContainer, SFlexContainer } from '../../styles/containerStyles'
-import { SInput, SSelect } from '../../styles/formStyles'
+import { SInput } from '../../styles/formStyles'
+import {
+  FaFileAlt,
+  FaChevronCircleLeft,
+  FaChevronCircleRight,
+} from 'react-icons/fa'
+
 import { TimeslipsListDetail } from './TimeslipsListDetail'
 
+import { setLastDate, previousDate, nextDate } from '../sessionSlice'
+
 const TimeslipsList = () => {
-  const [billedStatus, setBilledStatus] = useState(false)
-  const onChangeBilledStatus = (event) => {
-    const billedStatus = event.target.value
-    setBilledStatus(billedStatus)
+  const dispatch = useDispatch()
+
+  const { lastDate } = useSelector((state) => state.session)
+  if (!lastDate) {
+    const newDate = format(new Date(), 'yyyy-MM-dd')
+    dispatch(setLastDate(newDate))
   }
 
-  const [searchBilling, setSearchBilling] = useState('')
-  const onChangeSearchBilling = (event) => {
-    const searchBilling = event.target.value
-    setSearchBilling(searchBilling)
+  const handleDateChange = (e) => {
+    dispatch(setLastDate(e.target.value))
   }
 
   return (
-    <SFixedContainer maxwidth={`${s.lg}`}>
-      <h2>Timeslips</h2>
+    <SFixedContainer maxwidth={`${s.xxl}`}>
+      <h2>Timesheet</h2>
       <SFlexContainer>
-        <SSelect
-          onChange={(event) => {
-            onChangeBilledStatus(event)
+        <FaChevronCircleLeft
+          type='button'
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            margin: '3px 10px 0 0',
+            color: '#888888',
+            fontSize: 30,
+            marginRight: 10,
+            cursor: 'pointer',
           }}
-          width='10rem'
-        >
-          <option value='false'>Show Unbilled</option>
-          <option value='true'>Show Billed</option>
-          <option value=''>Show All</option>
-        </SSelect>
-        <SInput
-          type='search'
-          className='form-control'
-          placeholder='Search description'
-          value={searchBilling}
-          onChange={onChangeSearchBilling}
-          width={'20rem'}
-          margin={'0 1em'}
+          onClick={() => dispatch(previousDate())}
         />
-        <SButtonLink to={'/billing'}>Add New</SButtonLink>
+        <SInput
+          type='date'
+          id='lastDate'
+          name='lastDate'
+          value={lastDate}
+          onChange={handleDateChange}
+          width={'12rem'}
+          height={'2.5rem'}
+          style={{ fontFamily: 'Roboto' }}
+        />
+
+        <FaChevronCircleRight
+          type='button'
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            margin: '3px 10px 10px',
+            color: '#888888',
+            fontSize: 30,
+            cursor: 'pointer',
+          }}
+          onClick={() => dispatch(nextDate())}
+        />
+        <SButtonLink to={'/timeslips/add'} style={{ margin: '0 15px 15px' }}>
+          Add New
+        </SButtonLink>
+        <FaFileAlt
+          type='button'
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignContent: 'center',
+            color: 'green',
+            fontSize: 30,
+            margin: '3px 10px 10px',
+          }}
+        />
       </SFlexContainer>
-      <TimeslipsListDetail
-        searchBilling={searchBilling}
-        billedStatus={billedStatus}
-      />
+      <TimeslipsListDetail />
     </SFixedContainer>
   )
 }

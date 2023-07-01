@@ -16,9 +16,9 @@ const chargeSchema = new Schema(
     amount: Number,
     billable: Boolean,
     billed: Boolean,
-    billing: {
+    invoice: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Billing',
+      ref: 'Invoice',
     },
   },
   { timestamps: true }

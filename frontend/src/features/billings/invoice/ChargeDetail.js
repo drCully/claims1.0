@@ -2,19 +2,15 @@ import { useState, useRef, useMemo, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 
-import { addHours, format, parseISO } from 'date-fns'
+import { AgGridReact } from 'ag-grid-react'
+import { format, parseISO } from 'date-fns'
 import { toast } from 'react-toastify'
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa'
-import { AgGridReact } from 'ag-grid-react'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 
-import { useDeleteTimeslipMutation } from '../timeslips/timeslipsApiSlice'
-import {
-  setTimeItems,
-  setTimeAmount,
-  setSelectedTime,
-} from '../../features/billings/billingSlice'
+import { useDeleteChargeMutation } from '../../charges/chargesApiSlice'
+import { setSelectedCharges, setChargeAmount } from '../billingSlice'
 
 const numberFormatter = (params) => {
   return new Intl.NumberFormat('en-US', {
@@ -23,20 +19,20 @@ const numberFormatter = (params) => {
   }).format(params.value)
 }
 
-export function InvoiceCreateDetail() {
+const ChargeDetail = () => {
   const dispatch = useDispatch()
 
-  const { timeItems, selectedTime } = useSelector((state) => state.billing)
-  const [deleteTimeslip] = useDeleteTimeslipMutation()
+  const { chargeItems, selectedCharges } = useSelector((state) => state.billing)
+  const [deleteCharge] = useDeleteChargeMutation()
 
   const gridRef = useRef()
   const [rowData, setRowData] = useState()
-  const [columnDefs, setColumnDefs] = useState([
+  const [columnDefs] = useState([
     {
       headerName: 'Date',
       field: 'date',
       valueFormatter: (params) => {
-        return format(addHours(parseISO(params.value), 8), 'MM/dd/yyyy')
+        return format(parseISO(params.value), 'MM/dd/yyyy')
       },
       minWidth: 145,
       sortable: true,
@@ -46,24 +42,7 @@ export function InvoiceCreateDetail() {
     },
     { field: 'description', flex: 4, wrapText: true, autoHeight: true },
     {
-      field: 'hours',
-      valueFormatter: numberFormatter,
-      maxWidth: 90,
-      type: 'rightAligned',
-    },
-    {
-      field: 'rate',
-      valueFormatter: numberFormatter,
-      type: 'rightAligned',
-      maxWidth: 90,
-    },
-    { headerName: 'Service', field: 'task.name', minWidth: 130 },
-    {
       field: 'amount',
-      valueGetter: (params) => {
-        return params.data.hours * params.data.rate
-      },
-
       valueFormatter: numberFormatter,
       type: 'rightAligned',
       maxWidth: 120,
@@ -71,9 +50,9 @@ export function InvoiceCreateDetail() {
     {
       headerName: 'Actions',
       field: 'id',
-      cellRendererFramework: (params) => (
+      cellRenderer: (params) => (
         <div>
-          <Link to={`/timeslip/${params.data._id}`}>
+          <Link to={`/charge/${params.data._id}`}>
             <FaRegEdit
               style={{
                 color: 'green',
@@ -94,6 +73,7 @@ export function InvoiceCreateDetail() {
       maxWidth: 100,
     },
   ])
+
   const defaultColDef = useMemo(() => {
     return {
       flex: 1,
@@ -103,44 +83,40 @@ export function InvoiceCreateDetail() {
   }, [])
 
   const onGridReady = useCallback((params) => {
-    setRowData(timeItems)
+    setRowData(chargeItems)
   }, [])
 
   const onFirstDataRendered = useCallback((params) => {
-    if (selectedTime === null) {
-      // first rendering
-      gridRef.current.api.selectAll(true)
-    } else {
-      //refresh keeping selected time
-      const refreshSelectedTime = selectedTime
-      gridRef.current.api.deselectAll(true)
-      gridRef.current.api.forEachNode((node) =>
-        refreshSelectedTime.map((item) => {
-          if (item._id === node.data._id) {
-            node.setSelected(true)
-          }
-        })
-      )
-    }
+    const refreshSelected = selectedCharges
+    gridRef.current.api.deselectAll(true)
+    gridRef.current.api.forEachNode((node) =>
+      refreshSelected.map((item) => {
+        if (item._id === node.data._id) {
+          node.setSelected(true)
+        }
+      })
+    )
   }, [])
 
   const onSelectionChanged = useCallback((event) => {
     const selectedRows = event.api.getSelectedRows()
-    dispatch(setSelectedTime(selectedRows))
+    dispatch(setSelectedCharges(selectedRows))
 
-    const timeAmount = selectedRows.reduce((acc, item) => acc + item.total, 0)
-    dispatch(setTimeAmount(timeAmount))
+    const chargeAmount = selectedRows.reduce((acc, item) => acc + item.total, 0)
+    dispatch(setChargeAmount(chargeAmount))
   }, [])
 
   const handleDelete = async (id) => {
-    /*     if (window.confirm('Are you sure you want to delete this time record? ')) {
-      await deleteTimeslip(id)
-      toast.success('Time Record Deleted Successfully')
-    } */
+    if (
+      window.confirm('Are you sure you want to delete this charge record? ')
+    ) {
+      await deleteCharge(id)
+      toast.success('Charge Record Deleted Successfully')
+    }
   }
 
   return (
-    <div className='ag-theme-alpine' style={{ height: 500 }}>
+    <div className='ag-theme-alpine' style={{ height: 200 }}>
       <AgGridReact
         ref={gridRef}
         rowData={rowData}
@@ -155,3 +131,4 @@ export function InvoiceCreateDetail() {
     </div>
   )
 }
+export default ChargeDetail

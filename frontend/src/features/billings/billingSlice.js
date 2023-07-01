@@ -3,13 +3,13 @@ import { format } from 'date-fns'
 
 const initialState = {
   asOfDate: format(new Date(), 'yyyy-MM-dd'),
-  claimId: null,
-  clientId: null,
+  claimId: '',
   timeItems: [],
-  selectedTime: null,
+  selectedTime: [],
   timeAmount: 0,
-  hours: 0,
-  expenseAmount: 0,
+  chargeItems: [],
+  selectedCharges: [],
+  chargeAmount: 0,
 }
 
 const billingSlice = createSlice({
@@ -22,9 +22,6 @@ const billingSlice = createSlice({
     setClaimId: (state, action) => {
       state.claimId = action.payload
     },
-    setClientId: (state, action) => {
-      state.clientId = action.payload
-    },
     setTimeItems: (state, action) => {
       state.timeItems = action.payload
     },
@@ -34,29 +31,24 @@ const billingSlice = createSlice({
     setTimeAmount: (state, action) => {
       state.timeAmount = action.payload
     },
-    setHours: (state, action) => {
-      state.hours = action.payload
+    setChargeItems: (state, action) => {
+      state.chargeItems = action.payload
     },
-    setExpenseItems: (state, action) => {
-      state.expenseItems = action.payload
+    setSelectedCharges: (state, action) => {
+      state.selectedCharges = action.payload
     },
-    setSelectedExpenses: (state, action) => {
-      state.selectedExpenses = action.payload
-    },
-    SetExpenseAmount: (state, action) => {
-      state.expenseAmount = action.payload
+    setChargeAmount: (state, action) => {
+      state.chargeAmount = action.payload
     },
     clearBilling: (state, action) => {
       state.asOfDate = format(new Date(), 'yyyy-MM-dd')
-      state.claimId = null
-      state.clientId = null
+      //state.claimId = ''
       state.timeItems = []
-      state.selectedTime = null
+      state.selectedTime = []
       state.timeAmount = 0
-      state.hours = 0
-      state.expenseItems = []
-      state.selectedExpenses = null
-      state.expenseAmount = 0
+      state.chargeItems = []
+      state.selectedCharges = []
+      state.chargeAmount = 0
     },
   },
 })
@@ -64,14 +56,12 @@ const billingSlice = createSlice({
 export const {
   setAsOfDate,
   setClaimId,
-  setClientId,
   setTimeItems,
   setSelectedTime,
   setTimeAmount,
-  setHours,
-  setExpenseItems,
-  setSelectedExpenses,
-  setExpenseAmount,
+  setChargeItems,
+  setSelectedCharges,
+  setChargeAmount,
   clearBilling,
 } = billingSlice.actions
 export default billingSlice.reducer

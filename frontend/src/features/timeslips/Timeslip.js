@@ -37,11 +37,11 @@ const addDecimals = (num) => {
 
 const Timeslip = () => {
   const currentUser = useAuth()
-  const { timesheetDate, lastClaim } = useSelector((state) => state.session)
+  const { lastDate, lastClaim } = useSelector((state) => state.session)
   const dispatch = useDispatch()
 
   const initialValues = {
-    date: timesheetDate,
+    date: lastDate,
     timekeeper: currentUser.userId,
     claim: lastClaim,
     hours: 0.5,

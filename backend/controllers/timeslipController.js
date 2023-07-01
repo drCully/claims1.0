@@ -82,7 +82,7 @@ const getTimeslips = asyncHandler(async (req, res) => {
 const getTimeslip = asyncHandler(async (req, res) => {
   const timeslip = await Timeslip.findById(req.params.id).populate({
     path: 'invoice',
-    selecte: 'number',
+    select: 'number',
   })
 
   if (timeslip) {
@@ -145,30 +145,10 @@ const deleteTimeslip = asyncHandler(async (req, res) => {
   }
 })
 
-// @desc    Update timeslip billing status
-// @route   GET /timeslips/:id/invoice
-// @access  Private/Admin
-const updateBillingStatus = asyncHandler(async (req, res) => {
-  const timeslip = await Timeslip.findById(req.params.id)
-
-  if (timeslip) {
-    timeslip.billed = req.body.billed
-    timeslip.invoice = req.body.invoice
-
-    const updatedTimeslip = await timeslip.save()
-
-    res.json(updatedTimeslip)
-  } else {
-    res.status(404)
-    throw new Error('Timeslip not found')
-  }
-})
-
 module.exports = {
   createTimeslip,
   getTimeslips,
   getTimeslip,
   updateTimeslip,
   deleteTimeslip,
-  updateBillingStatus,
 }

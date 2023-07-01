@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
-import useAuth from '../../hooks/useAuth'
+import { format, parseISO } from 'date-fns'
 import { toast } from 'react-toastify'
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa'
 import {
@@ -13,39 +12,38 @@ import {
 } from 'react-table'
 import { TableLayout } from '../../components/TableLayout'
 import {
-  useTimeslipsQuery,
-  useDeleteTimeslipMutation,
-} from './timeslipsApiSlice'
+  useChargesQuery,
+  useDeleteChargeMutation,
+} from '../charges/chargesApiSlice'
 
-export function TimesheetDetail() {
-  const timekeeper = useAuth().userId
-  const { timesheetDate } = useSelector((state) => state.session)
-
-  const {
-    data: timeslips,
-    isLoading,
-    isSuccess,
-  } = useTimeslipsQuery(`date=${timesheetDate}&timekeeper=${timekeeper}`, {
-    refetchOnMountOrArgChange: true,
-  })
+export function ProfileChargesDetail({
+  userId,
+  billedStatus,
+  searchDescription,
+}) {
+  const { data: charges, isLoading } = useChargesQuery(
+    `timekeeper=${userId}&billed=${billedStatus}&description=${searchDescription}`,
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  )
 
   const [tableData, setTableData] = useState(null)
-  const [deleteTime] = useDeleteTimeslipMutation()
+
+  const [deleteCharge] = useDeleteChargeMutation()
 
   useEffect(() => {
-    if (isSuccess) {
-      setTableData(timeslips)
-    }
-  }, [isSuccess, timeslips])
+    setTableData(charges)
+  }, [charges])
 
   if (isLoading || !tableData) {
     return <div>Loading...</div>
   }
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this time record? ')) {
-      await deleteTime(id)
-      toast.success('Time Record Deleted Successfully')
+    if (window.confirm('Are you sure you want to delete this charge? ')) {
+      await deleteCharge(id)
+      toast.success('Charge Deleted Successfully')
     }
   }
 
@@ -56,26 +54,23 @@ const TableInstance = ({ tableData, handleDelete }) => {
   const [columns, data] = useMemo(() => {
     const columns = [
       {
+        Header: 'Date',
+        accessor: 'date',
+        Cell: ({ value }) => (
+          <div style={{ textAlign: 'center' }}>
+            {format(parseISO(value), 'MM/dd/yyyy')}
+          </div>
+        ),
+        width: 45,
+        minWidth: 45,
+        maxWidth: 45,
+      },
+      {
         Header: 'Claim',
         accessor: 'claim.name',
         width: 90,
         minWidth: 90,
         maxWidth: 90,
-      },
-      {
-        Header: 'Hours',
-        accessor: 'hours',
-        Cell: ({ value }) => (
-          <div style={{ textAlign: 'center' }}>
-            {new Intl.NumberFormat('en-US', {
-              style: 'decimal',
-              minimumFractionDigits: 2,
-            }).format(value)}
-          </div>
-        ),
-        width: 30,
-        minWidth: 30,
-        maxWidth: 30,
       },
       {
         Header: 'Description',
@@ -110,7 +105,7 @@ const TableInstance = ({ tableData, handleDelete }) => {
         align: 'center',
         Cell: ({ row }) => (
           <div style={{ textAlign: 'center' }}>
-            <Link to={`/timeslip/${row.original._id}`}>
+            <Link to={`/charges/${row.original._id}`}>
               <FaRegEdit
                 style={{
                   color: 'green',
@@ -136,7 +131,11 @@ const TableInstance = ({ tableData, handleDelete }) => {
       columns,
       data,
       defaultColumn,
-      initialState: { pageIndex: 0, pageSize: 15 },
+      initialState: {
+        pageIndex: 0,
+        pageSize: 15,
+        sortBy: [{ id: 'date', desc: false }],
+      },
     },
     useFlexLayout,
     useSortBy,

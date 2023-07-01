@@ -9,25 +9,17 @@ import {
   useSortBy,
 } from 'react-table'
 import { TableLayout } from '../../components/TableLayout'
-import { useTimeslipsQuery } from '../timeslips/timeslipsApiSlice'
-import {
-  setClaimId,
-  setClientId,
-  setTimeItems,
-  setTimeAmount,
-  setHours,
-  setExpenseItems,
-  setExpenseAmount,
-} from './billingSlice'
+import { useBillingsQuery } from './billingsApiSlice'
+import { setClaimId, setTimeAmount, setChargeAmount } from './billingSlice'
 
 export function BillableListDetail() {
   const { asOfDate } = useSelector((state) => state.billing)
 
   const {
-    data: timeslips,
+    data: billable,
     isLoading,
     isSuccess,
-  } = useTimeslipsQuery(`lastdate=${asOfDate}&billable=true&billed=false`, {
+  } = useBillingsQuery(`lastdate=${asOfDate}`, {
     refetchOnMountOrArgChange: true,
   })
 
@@ -37,51 +29,16 @@ export function BillableListDetail() {
 
   useEffect(() => {
     if (isSuccess) {
-      console.log(timeslips)
-      setTableData(claimTotals(timeslips))
+      console.log(billable)
+      setTableData(billable)
     }
-  }, [isSuccess, timeslips])
+  }, [isSuccess, billable])
 
-  const claimTotals = (timeslips) => {
-    let result = []
-    return Object.values(
-      timeslips.reduce((curr, item) => {
-        let claimId = item.claim._id
-        let claim = item.claim.name
-        if (!curr[claim]) {
-          curr[claim] = {
-            claimId: claimId,
-            claim: claim,
-            hours: 0,
-            amount: 0,
-            expenses: 0,
-          }
-          result.push(curr[claim])
-        }
-        curr[claim].hours += item.hours
-        curr[claim].amount += item.hours * item.rate
-        curr[claim].expenses += item.expenses
-        return curr
-      }, {})
-    )
-  }
-
-  const handleCreateInvoice = (id, billableHours) => {
+  const handleCreateInvoice = (id, timeAmount, chargeAmount) => {
     dispatch(setClaimId(id))
-    const extendedTimeItems = timeslips
-      .filter((timeslips) => timeslips.claim._id === id)
-      .map((item) => ({
-        ...item,
-        total: Math.round(item.hours * item.rate * 100) / 100,
-      }))
-    dispatch(setTimeItems(extendedTimeItems))
-    const timeAmount = extendedTimeItems.reduce(
-      (acc, item) => acc + item.total,
-      0
-    )
     dispatch(setTimeAmount(timeAmount))
-    dispatch(setHours(billableHours))
-    navigate('/invoice')
+    dispatch(setChargeAmount(chargeAmount))
+    navigate('/billings/add')
   }
 
   if (isLoading) {
@@ -101,12 +58,12 @@ const TableInstance = ({ tableData, handleCreateInvoice }) => {
     const columns = [
       {
         Header: 'claimId',
-        accessor: 'claimId',
+        accessor: '_id',
         isVisible: false,
       },
       {
         Header: 'Claim',
-        accessor: 'claim',
+        accessor: 'claimName',
         width: 90,
         minWidth: 90,
         maxWidth: 90,
@@ -117,16 +74,20 @@ const TableInstance = ({ tableData, handleCreateInvoice }) => {
               color: 'green',
             }}
             onClick={() =>
-              handleCreateInvoice(row.original.claimId, row.original.hours)
+              handleCreateInvoice(
+                row.original._id,
+                row.original.billableTime,
+                row.original.billableCharges
+              )
             }
           >
-            {row.original.claim}
+            {row.original.claimName}
           </span>
         ),
       },
       {
         Header: 'Hours',
-        accessor: 'hours',
+        accessor: 'billableHours',
         Cell: ({ value }) => (
           <div style={{ textAlign: 'right' }}>
             {new Intl.NumberFormat('en-US', {
@@ -136,13 +97,13 @@ const TableInstance = ({ tableData, handleCreateInvoice }) => {
             }).format(value)}
           </div>
         ),
-        width: 50,
-        minWidth: 50,
-        maxWidth: 50,
+        width: 17,
+        minWidth: 17,
+        maxWidth: 17,
       },
       {
         Header: 'Amount',
-        accessor: 'amount',
+        accessor: 'billableTime',
         Cell: ({ value }) => (
           <div style={{ textAlign: 'right' }}>
             {new Intl.NumberFormat('en-US', {
@@ -152,9 +113,40 @@ const TableInstance = ({ tableData, handleCreateInvoice }) => {
             }).format(value)}
           </div>
         ),
-        width: 50,
-        minWidth: 50,
-        maxWidth: 50,
+        width: 25,
+        minWidth: 25,
+        maxWidth: 25,
+      },
+      {
+        Header: 'Charges',
+        accessor: 'billableCharges',
+        Cell: ({ value }) => (
+          <div style={{ textAlign: 'right' }}>
+            {new Intl.NumberFormat('en-US', {
+              style: 'decimal',
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }).format(value)}
+          </div>
+        ),
+        width: 25,
+        minWidth: 25,
+        maxWidth: 25,
+      },
+      {
+        Header: 'Total',
+        Cell: ({ row }) => (
+          <div style={{ textAlign: 'right' }}>
+            {new Intl.NumberFormat('en-US', {
+              style: 'decimal',
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }).format(row.original.billableTime + row.original.billableCharges)}
+          </div>
+        ),
+        width: 25,
+        minWidth: 25,
+        maxWidth: 25,
       },
     ]
     return [columns, tableData]
@@ -180,8 +172,8 @@ const TableInstance = ({ tableData, handleCreateInvoice }) => {
       initialState: {
         pageIndex: 0,
         pageSize: 15,
-        hiddenColumns: ['claimId'],
-        sortBy: [{ id: 'claim', desc: false }],
+        hiddenColumns: ['_id'],
+        sortBy: [{ id: 'claimName', desc: false }],
       },
     },
     useFlexLayout,

@@ -9,9 +9,9 @@ import {
   SFlexCol,
 } from '../../styles/containerStyles'
 import { SInput, SSelect } from '../../styles/formStyles'
-import { ProfileHoursDetail } from './ProfileHoursDetail'
+import { ProfileChargesDetail } from './ProfileChargesDetail'
 
-const ProfileHours = () => {
+const ProfileCharges = () => {
   const { userId, userName } = useAuth()
   const navigate = useNavigate()
 
@@ -27,15 +27,15 @@ const ProfileHours = () => {
     setSearchDescription(searchDescription)
   }
 
-  const handleNewTimeslip = () => {
-    navigate('/timeslip')
+  const handleNewCharge = () => {
+    navigate('/charge')
   }
 
   return (
     <SFixedContainer maxwidth={`${s.xxl}`}>
       <SFlexContainer margin='1rem 0 0 0'>
         <SFlexCol fsize='1'>
-          <h2>Timeslips</h2>
+          <h2>Charges</h2>
           <h4>{userName}</h4>
         </SFlexCol>
         <SSelect
@@ -57,7 +57,7 @@ const ProfileHours = () => {
           width={'20rem'}
           margin={'0 1em'}
         />
-        <SButton onClick={handleNewTimeslip}>Add New</SButton>
+        <SButton onClick={handleNewCharge}>Add New</SButton>
         <SButton
           background='gray'
           type='button'
@@ -69,7 +69,7 @@ const ProfileHours = () => {
           Go Back
         </SButton>
       </SFlexContainer>
-      <ProfileHoursDetail
+      <ProfileChargesDetail
         userId={userId}
         billedStatus={billedStatus}
         searchDescription={searchDescription}
@@ -78,4 +78,4 @@ const ProfileHours = () => {
   )
 }
 
-export default ProfileHours
+export default ProfileCharges

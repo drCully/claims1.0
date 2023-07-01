@@ -9,10 +9,14 @@ import {
 } from 'react-table'
 import { format, parseISO } from 'date-fns'
 import { TableLayout } from '../../components/TableLayout'
-import { useInvoicesQuery } from '../invoices/invoicesApiSlice'
+import { useInvoicesQuery } from './invoice/invoicesApiSlice'
 
 export function BilledListDetail() {
-  const { data: invoices, isLoading, isSuccess } = useInvoicesQuery()
+  const {
+    data: invoices,
+    isLoading,
+    isSuccess,
+  } = useInvoicesQuery('status=posted')
 
   const [tableData, setTableData] = useState(null)
 
@@ -40,9 +44,9 @@ const TableInstance = ({ tableData }) => {
             {format(parseISO(value), 'MM/dd/yyyy')}
           </div>
         ),
-        width: 40,
-        minWidth: 40,
-        maxWidth: 40,
+        width: 48,
+        minWidth: 48,
+        maxWidth: 48,
       },
       {
         Header: 'Number',
@@ -52,7 +56,7 @@ const TableInstance = ({ tableData }) => {
         maxWidth: 30,
         Cell: ({ row }) => (
           <Link
-            to={`/invoice/${row.original._id}`}
+            to={`/billings/${row.original._id}`}
             style={{
               cursor: 'pointer',
               color: 'green',
@@ -64,8 +68,8 @@ const TableInstance = ({ tableData }) => {
         ),
       },
       {
-        Header: 'Claim',
-        accessor: 'claim.name',
+        Header: 'Client',
+        accessor: 'client.name',
         width: 90,
         minWidth: 90,
         maxWidth: 90,
@@ -78,7 +82,7 @@ const TableInstance = ({ tableData }) => {
               style: 'decimal',
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
-            }).format(row.original.timeAmount + row.original.expenseAmount)}
+            }).format(row.original.timeAmount + row.original.chargeAmount)}
           </div>
         ),
         width: 40,

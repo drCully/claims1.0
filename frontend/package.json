@@ -1,13 +1,14 @@
 {
-  "name": "claimsmanger-frontend",
-  "version": "2.0.0",
+  "name": "claims-frontend",
+  "version": "1.0.0",
+  "description": "Claims application - backend",
   "private": true,
   "proxy": "http://127.0.0.1:5000",
   "dependencies": {
     "@fvilers/disable-react-devtools": "^1.3.0",
     "@reduxjs/toolkit": "^1.9.5",
-    "ag-grid-community": "^29.3.5",
-    "ag-grid-react": "^29.3.5",
+    "ag-grid-community": "^30.0.2",
+    "ag-grid-react": "^30.0.2",
     "jwt-decode": "^3.1.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

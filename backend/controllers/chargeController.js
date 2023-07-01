@@ -24,7 +24,8 @@ const createCharge = asyncHandler(async (req, res) => {
 // @route   GET /charges
 // @access  Public
 const getCharges = asyncHandler(async (req, res) => {
-  const { date, timekeeper, claim, lastdate, billed, billing } = req.query
+  const { date, timekeeper, claim, lastdate, billable, billed, invoice } =
+    req.query
 
   let condition = {}
   if (date) {
@@ -39,11 +40,14 @@ const getCharges = asyncHandler(async (req, res) => {
   if (lastdate) {
     condition['date'] = JSON.parse('{"$lte": "' + lastdate + '"}')
   }
+  if (billable) {
+    condition['billable'] = billable
+  }
   if (billed) {
     condition['billed'] = billed
   }
-  if (billing) {
-    condition['billing'] = billing
+  if (invoice) {
+    condition['invoice'] = invoice
   }
 
   const charges = await Charge.find(condition).populate([
@@ -84,6 +88,7 @@ const updateCharge = asyncHandler(async (req, res) => {
     billable,
     billed,
     billing,
+    invoice,
   } = req.body
 
   const charge = await Charge.findById(req.params.id)
@@ -97,6 +102,7 @@ const updateCharge = asyncHandler(async (req, res) => {
     charge.billable = billable
     charge.billed = billed
     charge.billing = billing
+    charge.invoice = invoice
 
     const updatedCharge = await charge.save()
     res.json(updatedCharge)

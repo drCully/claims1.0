@@ -44,7 +44,7 @@ const getBillable = asyncHandler(async (req, res) => {
     },
     {
       $unionWith: {
-        coll: 'expenses',
+        coll: 'charges',
         pipeline: [
           {
             $match: {
@@ -65,10 +65,10 @@ const getBillable = asyncHandler(async (req, res) => {
           {
             $group: {
               _id: '$claimId',
-              expenses: {
+              charges: {
                 $sum: '$amount',
               },
-              extendedExpenses: {
+              extendedCharges: {
                 $sum: '$amount',
               },
             },
@@ -101,8 +101,8 @@ const getBillable = asyncHandler(async (req, res) => {
         billableTime: {
           $sum: '$time',
         },
-        billableExpenses: {
-          $sum: '$expenses',
+        billableCharges: {
+          $sum: '$charges',
         },
       },
     },
@@ -115,7 +115,7 @@ const getBillable = asyncHandler(async (req, res) => {
             },
           },
           {
-            billableExpenses: {
+            billableCharges: {
               $ne: 0,
             },
           },

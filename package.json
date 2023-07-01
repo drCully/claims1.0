@@ -1,8 +1,9 @@
 {
-  "name": "timekeeper",
-  "version": "2.0.0",
-  "description": "Time and billing application",
+  "name": "claims-backend",
+  "version": "1.0.0",
+  "description": "Claims application - backend",
   "main": "server.js",
+  "private": true,
   "scripts": {
     "start": "node backend/server",
     "server": "nodemon backend/server",

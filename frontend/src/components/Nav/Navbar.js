@@ -34,7 +34,7 @@ Navbar.defaultProps = {
     },
     {
       label: 'Time',
-      link: '/timesheets',
+      link: '/timeslips',
       submenu: null,
     },
     {

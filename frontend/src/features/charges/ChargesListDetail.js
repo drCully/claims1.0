@@ -32,7 +32,7 @@ export function ChargesListDetail({ searchCharge }) {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this charge? ')) {
       await deleteCharge(id)
-      toast.success('User Deleted Successfully')
+      toast.success('Charge Deleted Successfully')
     }
   }
 
@@ -110,7 +110,7 @@ const TableInstance = ({ tableData, handleDelete }) => {
         align: 'center',
         Cell: ({ row }) => (
           <div style={{ textAlign: 'center' }}>
-            <Link to={`/charge/${row.original._id}`}>
+            <Link to={`/charges/${row.original._id}`}>
               <FaRegEdit
                 style={{
                   color: 'green',

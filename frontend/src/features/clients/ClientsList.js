@@ -41,7 +41,7 @@ const ClientsList = () => {
           width={'20rem'}
           margin={'0 1em'}
         />
-        <SButtonLink to={'/client'}>Add New</SButtonLink>
+        <SButtonLink to={'/clients/add'}>Add New</SButtonLink>
       </SFlexContainer>
       <ClientsListDetail
         searchClient={searchClient}

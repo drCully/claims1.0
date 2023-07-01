@@ -22,7 +22,7 @@ const createInvoice = asyncHandler(async (req, res) => {
 // @route   GET /invoices
 // @access  Public
 const getInvoices = asyncHandler(async (req, res) => {
-  const { number, client } = req.query
+  const { number, client, status } = req.query
 
   let condition = {}
   if (number) {
@@ -31,8 +31,13 @@ const getInvoices = asyncHandler(async (req, res) => {
   if (client) {
     condition['client'] = { $regex: new RegExp(client), $options: 'i' }
   }
+  if (status) {
+    condition['status'] = status
+  }
 
-  const invoices = await Invoice.find(condition).populate('client', 'name')
+  const invoices = await Invoice.find(condition).populate([
+    { path: 'client', select: 'name' },
+  ])
 
   res.json(invoices)
 })
@@ -46,6 +51,7 @@ const getInvoice = asyncHandler(async (req, res) => {
       path: 'client',
       select: ['name', 'addr1', 'addr2', 'addr3'],
     },
+    { path: 'claim', select: ['name', 'number', 'claimant', 'vessel', 'dol'] },
   ])
 
   if (invoice) {
@@ -60,13 +66,15 @@ const getInvoice = asyncHandler(async (req, res) => {
 // @route   PUT /invoices/:id
 // @access  Private/Admin
 const updateInvoice = asyncHandler(async (req, res) => {
-  const { number, date, client, subTotal, salesTax, hours, status } = req.body
+  const { number, date, claim, client, timeAmount, chargeAmount, status } =
+    req.body
 
   const invoice = await Invoice.findById(req.params.id)
 
   if (invoice) {
     invoice.number = number
     invoice.date = date
+    invoice.claim = claim
     invoice.client = client
     invoice.timeAmount = timeAmount
     invoice.chargeAmount = chargeAmount

@@ -1,52 +1,52 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa';
+import { useState, useEffect, useMemo } from 'react'
+import { useSelector } from 'react-redux'
+import { Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa'
 import {
   useTable,
   useFlexLayout,
   usePagination,
   useRowSelect,
   useSortBy,
-} from 'react-table';
-import { TableLayout } from '../../components/TableLayout';
+} from 'react-table'
+import { TableLayout } from '../../components/TableLayout'
 import {
   useTimesQuery,
   useDeleteTimeMutation,
-} from '../../app/services/timekeeperApi';
+} from '../../app/services/timekeeperApi'
 
 export function TimeTable() {
-  const { user: currentUser } = useSelector((state) => state.auth);
-  const timekeeper = currentUser.id;
-  const { timesheetDate } = useSelector((state) => state.session);
+  const { user: currentUser } = useSelector((state) => state.auth)
+  const timekeeper = currentUser.id
+  const { lastDate } = useSelector((state) => state.session)
 
   const { data: timeRecords, isLoading } = useTimesQuery(
-    `size=9999&date=${timesheetDate}&timekeeper=${timekeeper}`,
+    `size=9999&date=${lastDate}&timekeeper=${timekeeper}`,
     {
       refetchOnMountOrArgChange: true,
     }
-  );
+  )
 
-  const [tableData, setTableData] = useState(null);
-  const [deleteTime] = useDeleteTimeMutation();
+  const [tableData, setTableData] = useState(null)
+  const [deleteTime] = useDeleteTimeMutation()
 
   useEffect(() => {
-    setTableData(timeRecords?.data);
-  }, [timeRecords]);
+    setTableData(timeRecords?.data)
+  }, [timeRecords])
 
   if (isLoading || !tableData) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this time record? ')) {
-      await deleteTime(id);
-      toast.success('Time Record Deleted Successfully');
+      await deleteTime(id)
+      toast.success('Time Record Deleted Successfully')
     }
-  };
+  }
 
-  return <TableInstance tableData={tableData} handleDelete={handleDelete} />;
+  return <TableInstance tableData={tableData} handleDelete={handleDelete} />
 }
 
 const TableInstance = ({ tableData, handleDelete }) => {
@@ -88,9 +88,9 @@ const TableInstance = ({ tableData, handleDelete }) => {
         minWidth: 150,
         maxWidth: 250,
       },
-    ];
-    return [columns, tableData];
-  }, [tableData]);
+    ]
+    return [columns, tableData]
+  }, [tableData])
 
   const defaultColumn = useMemo(
     () => ({
@@ -101,7 +101,7 @@ const TableInstance = ({ tableData, handleDelete }) => {
       align: 'center',
     }),
     []
-  );
+  )
 
   const actionColumn = (hooks) => {
     hooks.visibleColumns.push((columns) => [
@@ -132,8 +132,8 @@ const TableInstance = ({ tableData, handleDelete }) => {
           </div>
         ),
       },
-    ]);
-  };
+    ])
+  }
 
   const tableInstance = useTable(
     {
@@ -147,7 +147,7 @@ const TableInstance = ({ tableData, handleDelete }) => {
     usePagination,
     useRowSelect,
     actionColumn
-  );
+  )
 
-  return <TableLayout {...tableInstance} />;
-};
+  return <TableLayout {...tableInstance} />
+}

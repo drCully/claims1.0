@@ -50,7 +50,7 @@ const Signin = () => {
       const { accessToken } = await signin({ email, password }).unwrap()
       dispatch(setCredentials({ accessToken }))
       setFormValues({ ...initialValues })
-      navigate('/timesheets')
+      navigate('/timeslips')
     } catch (err) {
       if (!err?.originalStatus) {
         // isLoading: true until timeout occurs

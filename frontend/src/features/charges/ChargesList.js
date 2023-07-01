@@ -25,7 +25,7 @@ const ChargesList = () => {
           width={'20rem'}
           margin={'0 1em'}
         />
-        <SButtonLink to={'/charge'}>Add New</SButtonLink>
+        <SButtonLink to={'/charges/add'}>Add New</SButtonLink>
       </SFlexContainer>
       <ChargesListDetail searchCharge={searchCharge} />
     </SFixedContainer>

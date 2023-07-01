@@ -34,22 +34,6 @@ export const timeslipsApiSlice = apiSlice.injectEndpoints({
       }),
       invalidatesTags: ['Timeslip'],
     }),
-    invoiceTimeslip: builder.mutation({
-      query: ({ _id, ...rest }) => ({
-        url: `/timeslips/${_id}/invoice`,
-        method: 'PUT',
-        body: rest,
-      }),
-      invalidatesTags: ['Timeslip'],
-    }),
-    timeslipBilling: builder.mutation({
-      query: ({ _id, ...rest }) => ({
-        url: `/timeslips/${_id}/invoice`,
-        method: 'PUT',
-        body: rest,
-      }),
-      invalidatesTags: ['Timeslip'],
-    }),
   }),
 })
 
@@ -59,6 +43,4 @@ export const {
   useDeleteTimeslipMutation,
   useCreateTimeslipMutation,
   useUpdateTimeslipMutation,
-  useInvoiceTimeslipMutation,
-  useTimeslipBillingMutation,
 } = timeslipsApiSlice

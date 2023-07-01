@@ -1,4 +1,4 @@
-import { apiSlice } from '../../app/api/apiSlice'
+import { apiSlice } from '../../../app/api/apiSlice'
 
 export const invoicesApiSlice = apiSlice.injectEndpoints({
   tagTypes: 'Invoice',
@@ -10,6 +10,17 @@ export const invoicesApiSlice = apiSlice.injectEndpoints({
     invoice: builder.query({
       query: (_id) => `/invoices/${_id}`,
       providesTags: ['Invoice'],
+    }),
+    invoiceClient: builder.query({
+      async queryFn(_id, _queryApi, _extraOptions, fetchWithBQ) {
+        const claimResult = await fetchWithBQ(`/claims/${_id}`)
+        if (claimResult.error) return { error: claimResult.error }
+        const clientId = claimResult.data.client._id
+        const clientResult = await fetchWithBQ(`/clients/${clientId}`)
+        return clientResult.data
+          ? { data: clientResult.data }
+          : { error: clientResult.error }
+      },
     }),
     deleteInvoice: builder.mutation({
       query: (_id) => ({
@@ -40,6 +51,7 @@ export const invoicesApiSlice = apiSlice.injectEndpoints({
 export const {
   useInvoicesQuery,
   useInvoiceQuery,
+  useInvoiceClientQuery,
   useDeleteInvoiceMutation,
   useCreateInvoiceMutation,
   useUpdateInvoiceMutation,

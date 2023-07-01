@@ -22,6 +22,5 @@ router
     verifyRoles(ROLES_LIST.Admin, ROLES_LIST.Editor),
     timeslipController.updateTimeslip
   )
-router.route('/:id/invoice').get(timeslipController.updateBillingStatus)
 
 module.exports = router

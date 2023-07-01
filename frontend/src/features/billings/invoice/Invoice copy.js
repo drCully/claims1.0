@@ -1,27 +1,31 @@
 import { forwardRef, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import { format, addHours, parseISO } from 'date-fns'
 import ReactToPrint from 'react-to-print'
 import { toast } from 'react-toastify'
-
 import {
   SFixedContainer,
   SFlexContainer,
   SFlexRow,
   SFlexCol,
-} from '../../styles/containerStyles'
-import { SCardFull } from '../../styles/cardStyles'
-
-import { SButton } from '../../styles/buttonStyles'
-import { s } from '../../styles/variables'
+} from '../../../styles/containerStyles'
+import { SCardFull } from '../../../styles/cardStyles'
+import { SButton } from '../../../styles/buttonStyles'
+import { s } from '../../../styles/variables'
 import LogoImg from './clientlogo.png'
 
 import { useInvoiceQuery, useUpdateInvoiceMutation } from './invoicesApiSlice'
 import {
   useTimeslipsQuery,
-  useTimeslipBillingMutation,
-} from '../timeslips/timeslipsApiSlice'
+  useUpdateTimeslipMutation,
+} from '../../timeslips/timeslipsApiSlice'
+import {
+  useChargesQuery,
+  useUpdateChargeMutation,
+} from '../../charges/chargesApiSlice'
 import { InvoiceDetail } from './InvoiceDetail'
+import { clearBilling } from '../billingSlice'
 
 const formatNumber = (num) => {
   return num.toLocaleString('en-US', {
@@ -36,27 +40,40 @@ const Invoice = () => {
   const { id } = useParams()
   const { data: invoice, isLoading } = useInvoiceQuery(id)
   const { data: timeslips, isSuccess } = useTimeslipsQuery(`invoice=${id}`)
+  const charges = useChargesQuery(`invoice=${id}`)
 
   const [updateInvoice] = useUpdateInvoiceMutation()
-  const [updateTime] = useTimeslipBillingMutation()
+  const [updateTimeslip] = useUpdateTimeslipMutation()
+  const [updateCharges] = useUpdateChargeMutation()
+
+  const dispatch = useDispatch()
 
   const handleUnpost = async (id) => {
     if (window.confirm('Are you sure you want to VOID this invoice? ')) {
       if (isSuccess) {
         let updatedValue = { ...invoice }
+        updatedValue.claim = null
         updatedValue.client = null
-        updatedValue.subTotal = 0
-        updatedValue.salesTax = 0
+        updatedValue.timeAmount = 0
+        updatedValue.chargeAmount = 0
         updatedValue.status = 'void'
         await updateInvoice(updatedValue)
 
-        timeslips.map(async (time) => {
-          let updatedValue = { ...time }
+        timeslips.map(async (timeslip) => {
+          let updatedValue = { ...timeslip }
           updatedValue.billed = false
           updatedValue.invoice = null
-          await updateTime(updatedValue)
+          await updateTimeslip(updatedValue)
         })
 
+        charges.data.map(async (charge) => {
+          let updatedValue = { ...charge }
+          updatedValue.billed = false
+          updatedValue.invoice = null
+          await updateCharges(updatedValue)
+        })
+
+        dispatch(clearBilling())
         navigate('/billings')
         toast.success('Invoice Voided Successfully')
       }
@@ -84,7 +101,7 @@ const Invoice = () => {
             type='submit'
             margin='.5rem'
             width='5rem'
-            onClick={handleUnpost}
+            onClick={() => handleUnpost(id)}
           >
             Unpost
           </SButton>
@@ -127,10 +144,10 @@ const InvoiceToPrint = forwardRef((props, ref) => {
       <SFixedContainer margin='1.5rem 0 1rem 0' style={{ padding: '1.5rem' }}>
         <SFlexContainer justify='space-between' align='end'>
           <SFlexCol>
-            <img src={LogoImg} style={{ width: '70px', height: '70px' }} />
+            <img src={LogoImg} style={{ width: '350px' }} />
             <p style={{ fontSize: '.7rem' }}>
-              David Cully | 3611 I Street NE, 181 | Auburn, WA 98002 |
-              206.683.2831
+              4055 21st Avenue West, Suite 200 | Seattle, WA 98199-1201 |
+              206.378.6090
             </p>
           </SFlexCol>
           <SFlexCol style={{ alignItems: 'flex-end' }}>
@@ -213,7 +230,7 @@ const InvoiceToPrint = forwardRef((props, ref) => {
                     fontWeight: 'bolder',
                   }}
                 >
-                  Billable Time ({invoiceData.hours} hours)
+                  Adjuster Time
                 </p>
               </SFlexCol>
               <SFlexCol>
@@ -224,7 +241,7 @@ const InvoiceToPrint = forwardRef((props, ref) => {
                     textAlign: 'right',
                   }}
                 >
-                  {formatNumber(invoiceData.subTotal)}
+                  {formatNumber(invoiceData.timeAmount)}
                 </p>
               </SFlexCol>
             </SFlexRow>
@@ -237,7 +254,7 @@ const InvoiceToPrint = forwardRef((props, ref) => {
                     fontWeight: 'bolder',
                   }}
                 >
-                  Sales Tax
+                  Charges
                 </p>
               </SFlexCol>
               <SFlexCol>
@@ -248,7 +265,7 @@ const InvoiceToPrint = forwardRef((props, ref) => {
                     textAlign: 'right',
                   }}
                 >
-                  {formatNumber(invoiceData.salesTax)}
+                  {formatNumber(invoiceData.chargeAmount)}
                 </p>
               </SFlexCol>
             </SFlexRow>
@@ -273,7 +290,8 @@ const InvoiceToPrint = forwardRef((props, ref) => {
                   }}
                 >
                   {formatNumber(
-                    Number(invoiceData.subTotal) + Number(invoiceData.salesTax)
+                    Number(invoiceData.timeAmount) +
+                      Number(invoiceData.chargeAmount)
                   )}
                 </p>
               </SFlexCol>

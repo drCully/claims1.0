@@ -2,12 +2,12 @@ import { useMemo } from 'react'
 import { useTable, useFlexLayout, useSortBy } from 'react-table'
 import { useSelector } from 'react-redux'
 import { addHours, format, parseISO } from 'date-fns'
-import { STablePrint } from '../../styles/tableStyles'
+import { STablePrint } from '../../../styles/tableStyles'
 
-import { useTimeslipsQuery } from '../timeslips/timeslipsApiSlice'
+import { useTimeslipsQuery } from '../../timeslips/timeslipsApiSlice'
 
 const headerProps = (props, { column }) => getStyles(props, column.align)
-const cellProps = (props, { cell }) => getStyles(props, cell.column.align)
+//const cellProps = (props, { cell }) => getStyles(props, cell.column.align)
 const getStyles = (props, align = 'left') => [
   props,
   {
@@ -72,7 +72,7 @@ function Table({ columns, data }) {
   )
 }
 
-export function InvoiceDetail({ invoice }) {
+export function InvoiceTimeDetail({ invoice }) {
   const {
     data: timeslips,
     isLoading,
@@ -136,13 +136,6 @@ export function InvoiceDetail({ invoice }) {
       width: 35,
       minWidth: 35,
       maxWidth: 35,
-    },
-    {
-      Header: 'Service',
-      accessor: 'task.name',
-      width: 65,
-      minWidth: 65,
-      maxWidth: 65,
     },
     {
       Header: 'Amount',
