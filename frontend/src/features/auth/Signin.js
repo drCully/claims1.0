@@ -93,6 +93,7 @@ const Signin = () => {
             value={email}
             onChange={handleInputChange}
             width='100%'
+            padding='.5rem'
           />
         </SFormControl>
         <SFormControl>
@@ -104,6 +105,7 @@ const Signin = () => {
             value={password}
             onChange={handleInputChange}
             width='100%'
+            padding='.5rem'
           />
         </SFormControl>
 

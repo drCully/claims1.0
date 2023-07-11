@@ -10,6 +10,7 @@ import {
   SFlexCol,
 } from '../../../styles/containerStyles'
 import { SFormPlain, SInput, SLabel } from '../../../styles/formStyles'
+import Tabs from '../../../components/Tabs/Tabs'
 import { SButton } from '../../../styles/buttonStyles'
 import { s } from '../../../styles/variables'
 
@@ -114,8 +115,8 @@ const InvoiceAdd = () => {
     dispatch(setAsOfDate(e.target.value))
   }
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     const invoiceResult = await createInvoice({
       date: asOfDate,
       claim: claimId,
@@ -263,11 +264,15 @@ const InvoiceAdd = () => {
             </SFormPlain>
           </SFlexCol>
         </SFlexContainer>
-        <SFixedContainer height='30rem' margin='1rem 0 0 0' overflow='auto'>
-          <SLabel>Time</SLabel>
-          <TimeDetail />
-          <SLabel style={{ marginTop: '1rem' }}>Charges</SLabel>
-          <ChargeDetail />
+        <SFixedContainer>
+          <Tabs>
+            <div label='Time Detail'>
+              <TimeDetail />
+            </div>
+            <div label='Charges Detail'>
+              <ChargeDetail />
+            </div>
+          </Tabs>
         </SFixedContainer>
       </SFixedContainer>
     )

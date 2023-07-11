@@ -3,8 +3,9 @@ import { subDays, addDays, format, parseISO } from 'date-fns'
 
 const initialState = {
   lastDate: format(new Date(), 'yyyy-MM-dd'),
-  lastClient: '',
-  lastClaim: '',
+  lastUser: undefined,
+  lastClient: undefined,
+  lastClaim: undefined,
 }
 
 const sessionSlice = createSlice({
@@ -26,6 +27,9 @@ const sessionSlice = createSlice({
         'yyyy-MM-dd'
       )
     },
+    setLastUser: (state, action) => {
+      state.lastUser = action.payload
+    },
     setLastClient: (state, action) => {
       state.lastClient = action.payload
     },
@@ -39,6 +43,7 @@ export const {
   setLastDate,
   previousDate,
   nextDate,
+  setLastUser,
   setLastClient,
   setLastClaim,
 } = sessionSlice.actions

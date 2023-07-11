@@ -6,13 +6,13 @@ import BilledList from './BilledList'
 
 const Billing = () => {
   return (
-    <SFixedContainer maxwidth={`${s.xl}`}>
+    <SFixedContainer maxwidth={`${s.xxl}`}>
       <h2>Billing</h2>
       <SFlexContainer>
-        <SCardFull>
+        <SCardFull width={'55%'} height='calc(100vh - 15rem)'>
           <BillableList />
         </SCardFull>
-        <SCardFull>
+        <SCardFull width={'45%'} height='calc(100vh - 15rem)'>
           <BilledList />
         </SCardFull>
       </SFlexContainer>

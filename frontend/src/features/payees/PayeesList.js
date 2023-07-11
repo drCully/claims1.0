@@ -42,7 +42,9 @@ const PayeesList = () => {
           width={'20rem'}
           margin={'0 1em'}
         />
-        <SButtonLink to={'/payees/add'}>Add New</SButtonLink>
+        <SButtonLink to={'/payees/add'} padding={'0.18rem 0.5rem'}>
+          Add New
+        </SButtonLink>
       </SFlexContainer>
       <PayeesListDetail searchPayee={searchPayee} activeStatus={activeStatus} />
     </SFixedContainer>

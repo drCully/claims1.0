@@ -120,7 +120,7 @@ const TableInstance = ({ tableData, handleDelete }) => {
         align: 'center',
         Cell: ({ row }) => (
           <div style={{ textAlign: 'center' }}>
-            <Link to={`/timeslip/${row.original._id}`}>
+            <Link to={`/timeslips/${row.original._id}`}>
               <FaRegEdit
                 style={{
                   color: 'green',

@@ -1,23 +1,27 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import useAuth from '../../hooks/useAuth'
+import { AgGridReact } from 'ag-grid-react'
 import { toast } from 'react-toastify'
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa'
-import {
-  useTable,
-  useFlexLayout,
-  usePagination,
-  useRowSelect,
-  useSortBy,
-} from 'react-table'
-import { TableLayout } from '../../components/TableLayout'
+import 'ag-grid-community/styles/ag-grid.css'
+import 'ag-grid-community/styles/ag-theme-alpine.css'
+import { SFlexCol, SFlexContainer } from '../../styles/containerStyles'
+
 import {
   useTimeslipsQuery,
   useDeleteTimeslipMutation,
 } from './timeslipsApiSlice'
 
-export function TimeslipsListDetail() {
+const numberFormatter = (params) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'decimal',
+    minimumFractionDigits: 2,
+  }).format(params.value)
+}
+
+const TimeslipsListDetail = () => {
   const timekeeper = useAuth().userId
   const { lastDate } = useSelector((state) => state.session)
 
@@ -29,121 +33,141 @@ export function TimeslipsListDetail() {
     refetchOnMountOrArgChange: true,
   })
 
-  const [tableData, setTableData] = useState(null)
   const [deleteTime] = useDeleteTimeslipMutation()
 
-  useEffect(() => {
-    if (isSuccess) {
-      setTableData(timeslips)
-    }
-  }, [isSuccess, timeslips])
+  const gridRef = useRef()
+  const [rowData, setRowData] = useState()
+  const [totalHours, setTotalHours] = useState(0)
 
-  if (isLoading || !tableData) {
-    return <div>Loading...</div>
-  }
+  const [columnDefs, setColumnDefs] = useState([
+    {
+      headerName: 'Claim',
+      field: 'claim.name',
+
+      flex: 2,
+      maxWidth: 300,
+      sortable: true,
+    },
+    {
+      field: 'hours',
+      valueFormatter: numberFormatter,
+      type: 'rightAligned',
+      cellRenderer: (params) => (
+        <div>
+          {params.node.rowPinned ? (
+            <span style={{ fontWeight: 'bold' }}>
+              {numberFormatter(params)}
+            </span>
+          ) : (
+            <>
+              <span>{params.data.hours}</span>
+            </>
+          )}
+        </div>
+      ),
+      width: 70,
+      minWidth: 65,
+      maxWidth: 90,
+    },
+    {
+      field: 'description',
+      flex: 4,
+      wrapText: true,
+      autoHeight: true,
+    },
+    {
+      headerName: 'Actions',
+      field: 'id',
+      cellRenderer: (params) => (
+        <div>
+          {!params.data._id ? (
+            ''
+          ) : (
+            <>
+              <Link to={`/timeslips/${params.data._id}`}>
+                <FaRegEdit
+                  style={{
+                    color: 'green',
+                    marginRight: '.7em',
+                  }}
+                />
+              </Link>
+              <FaRegTrashAlt
+                style={{
+                  cursor: 'pointer',
+                  color: 'red',
+                }}
+                onClick={() => handleDelete(params.data._id)}
+              />
+            </>
+          )}
+        </div>
+      ),
+      pinnedRowCellRenderer: function (params) {
+        return <span></span>
+      },
+      cellStyle: { textAlign: 'center' },
+      resizable: false,
+      maxWidth: 100,
+    },
+  ])
+
+  // DefaultColDef sets props common to all Columns
+  const defaultColDef = useMemo(() => {
+    return {
+      resizable: true,
+    }
+  }, [])
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this time record? ')) {
+    if (
+      window.confirm('Are you sure you want to delete this charge record? ')
+    ) {
       await deleteTime(id)
       toast.success('Time Record Deleted Successfully')
     }
   }
 
-  return <TableInstance tableData={tableData} handleDelete={handleDelete} />
-}
+  useEffect(() => {
+    if (isSuccess) {
+      setRowData(timeslips)
 
-const TableInstance = ({ tableData, handleDelete }) => {
-  const [columns, data] = useMemo(() => {
-    const columns = [
-      {
-        Header: 'Claim',
-        accessor: 'claim.name',
-        width: 90,
-        minWidth: 90,
-        maxWidth: 90,
-      },
-      {
-        Header: 'Hours',
-        accessor: 'hours',
-        Cell: ({ value }) => (
-          <div style={{ textAlign: 'center' }}>
-            {new Intl.NumberFormat('en-US', {
-              style: 'decimal',
-              minimumFractionDigits: 2,
-            }).format(value)}
-          </div>
-        ),
-        width: 30,
-        minWidth: 30,
-        maxWidth: 30,
-      },
-      {
-        Header: 'Description',
-        accessor: 'description',
-        width: 225,
-        minWidth: 150,
-        maxWidth: 250,
-      },
-    ]
-    return [columns, tableData]
-  }, [tableData])
+      const getTotal = timeslips.reduce(
+        (total, currentValue) => (total = total + currentValue.hours),
+        0
+      )
+      const totalRow = []
+      totalRow.push({
+        claim: undefined,
+        hours: getTotal,
+        description: undefined,
+        actions: undefined,
+      })
+      setTotalHours(totalRow)
+    }
+  }, [isSuccess, timeslips])
 
-  const defaultColumn = useMemo(
-    () => ({
-      // When using the useFlexLayout:
-      minWidth: 30, // minWidth is only used as a limit for resizing
-      width: 150, // width is used for both the flex-basis and flex-grow
-      maxWidth: 200, // maxWidth is only used as a limit for resizing
-      align: 'center',
-    }),
-    []
-  )
-
-  const actionColumn = (hooks) => {
-    hooks.visibleColumns.push((columns) => [
-      ...columns,
-      {
-        Header: 'Action',
-        minWidth: 35,
-        width: 35,
-        maxWidth: 35,
-        align: 'center',
-        Cell: ({ row }) => (
-          <div style={{ textAlign: 'center' }}>
-            <Link to={`/timeslips/${row.original._id}`}>
-              <FaRegEdit
-                style={{
-                  color: 'green',
-                  marginRight: '.7em',
-                }}
-              />
-            </Link>
-            <FaRegTrashAlt
-              style={{
-                cursor: 'pointer',
-                color: 'red',
-              }}
-              onClick={() => handleDelete(row.original._id)}
-            />
-          </div>
-        ),
-      },
-    ])
+  if (isLoading) {
+    return <div>Loading...</div>
   }
 
-  const tableInstance = useTable(
-    {
-      columns,
-      data,
-      defaultColumn,
-      initialState: { pageIndex: 0, pageSize: 15 },
-    },
-    useFlexLayout,
-    useSortBy,
-    usePagination,
-    useRowSelect,
-    actionColumn
-  )
-
-  return <TableLayout {...tableInstance} />
+  if (isSuccess) {
+    return (
+      <div
+        className='ag-theme-alpine'
+        style={{ width: '100%', height: '100%' }}
+      >
+        <AgGridReact
+          ref={gridRef}
+          rowData={rowData}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          pinnedBottomRowData={totalHours}
+          //pagination={true}
+          //paginationAutoPageSize={true}
+        ></AgGridReact>
+      </div>
+    )
+  }
 }
+export default TimeslipsListDetail

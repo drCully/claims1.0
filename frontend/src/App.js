@@ -16,8 +16,9 @@ import { ROLES } from './config/roles'
 import Billings from './features/billings/Billing'
 import Charge from './features/charges/Charge'
 import Charges from './features/charges/ChargesList'
+import ClaimAdd from './features/claims/ClaimAdd'
 import Claim from './features/claims/Claim'
-import ClaimAdmin from './features/claims/admin/ClaimAdmin'
+import ClaimDashboard from './features/claims/dashboard/Dashboard'
 import Claims from './features/claims/ClaimsList'
 import Client from './features/clients/Client'
 import Clients from './features/clients/ClientsList'
@@ -30,6 +31,7 @@ import ProfileHours from './features/profile/ProfileHours'
 import ProfileCharges from './features/profile/ProfileCharges'
 import Timeslip from './features/timeslips/Timeslip'
 import Timeslips from './features/timeslips/TimeslipsList'
+import Timesheet from './features/timeslips/Timesheet'
 import Users from './features/users/UsersList'
 import UserAddEdit from './features/users/User'
 
@@ -69,10 +71,10 @@ function App() {
                   <Route path='add' element={<Charge />} />
                 </Route>
                 <Route path='claims'>
-                  <Route path='admin/:id' element={<ClaimAdmin />} />
                   <Route index element={<Claims />} />
+                  <Route path='dashboard/:id' element={<ClaimDashboard />} />
                   <Route path=':id' element={<Claim />} />
-                  <Route path='add' element={<Claim />} />
+                  <Route path='add' element={<ClaimAdd />} />
                 </Route>
                 <Route path='clients'>
                   <Route index element={<Clients />} />
@@ -96,6 +98,8 @@ function App() {
                   <Route path='add' element={<Timeslip />} />
                 </Route>
 
+                <Route path='/timesheet' element={<Timesheet />} />
+
                 <Route
                   element={
                     <RequireAuth allowedRoles={[ROLES.Editor, ROLES.Admin]} />
@@ -118,7 +122,7 @@ function App() {
             {/* End Protected Routes */}
           </Routes>
         </SPageContainer>
-        <ToastContainer autoClose={2000} />
+        <ToastContainer autoClose={1200} />
       </>
     </ThemeProvider>
   )

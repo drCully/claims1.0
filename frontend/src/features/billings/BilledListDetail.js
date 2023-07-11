@@ -1,5 +1,8 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { AgGridReact } from 'ag-grid-react'
+import 'ag-grid-community/styles/ag-grid.css'
+import 'ag-grid-community/styles/ag-theme-alpine.css'
 import {
   useTable,
   useFlexLayout,
@@ -11,117 +14,104 @@ import { format, parseISO } from 'date-fns'
 import { TableLayout } from '../../components/TableLayout'
 import { useInvoicesQuery } from './invoice/invoicesApiSlice'
 
-export function BilledListDetail() {
+const numberFormatter = (params) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'decimal',
+    minimumFractionDigits: 2,
+  }).format(params.value)
+}
+
+const BilledListDetail = () => {
   const {
     data: invoices,
     isLoading,
     isSuccess,
   } = useInvoicesQuery('status=posted')
 
-  const [tableData, setTableData] = useState(null)
+  const gridRef = useRef()
+  const [rowData, setRowData] = useState()
+  const [columnDefs, setColumnDefs] = useState([
+    {
+      field: 'date',
+      valueFormatter: (params) => {
+        return format(parseISO(params.value), 'MM/dd/yyyy')
+      },
+      width: 110,
+      minWidth: 110,
+      sortable: true,
+      sort: 'asc',
+    },
+    {
+      field: 'number',
+      valueFormatter: numberFormatter,
+      type: 'rightAligned',
+      cellRenderer: (params) => (
+        <Link
+          to={`/billings/${params.data._id}`}
+          style={{
+            cursor: 'pointer',
+            color: 'blue',
+            textDecoration: 'none',
+          }}
+        >
+          {params.data.number}
+        </Link>
+      ),
+      width: 85,
+      minWidth: 85,
+    },
+    {
+      headerName: 'Client',
+      field: 'client.name',
+      flex: 1,
+      minWidth: 200,
+    },
+    {
+      headerName: 'Amount',
+      field: 'amount',
+      valueGetter: (params) => {
+        return params.data.timeAmount + params.data.chargeAmount
+      },
+
+      valueFormatter: numberFormatter,
+      type: 'rightAligned',
+      width: 95,
+      minWidth: 95,
+    },
+  ])
+
+  // DefaultColDef sets props common to all Columns
+  const defaultColDef = useMemo(() => {
+    return {
+      resizable: true,
+    }
+  }, [])
+
+  const onGridReady = useCallback((params) => {
+    setRowData(invoices)
+  }, [])
 
   useEffect(() => {
     if (isSuccess) {
-      setTableData(invoices)
+      setRowData(invoices)
     }
-  }, [invoices])
+  }, [isSuccess, invoices])
 
-  if (isLoading || !tableData) {
+  if (isLoading) {
     return <div>Loading...</div>
   }
 
-  return <TableInstance tableData={tableData} />
-}
-
-const TableInstance = ({ tableData }) => {
-  const [columns, data] = useMemo(() => {
-    const columns = [
-      {
-        Header: 'Date',
-        accessor: 'date',
-        Cell: ({ value }) => (
-          <div style={{ textAlign: 'center' }}>
-            {format(parseISO(value), 'MM/dd/yyyy')}
-          </div>
-        ),
-        width: 48,
-        minWidth: 48,
-        maxWidth: 48,
-      },
-      {
-        Header: 'Number',
-        accessor: 'number',
-        width: 30,
-        minWidth: 25,
-        maxWidth: 30,
-        Cell: ({ row }) => (
-          <Link
-            to={`/billings/${row.original._id}`}
-            style={{
-              cursor: 'pointer',
-              color: 'green',
-              textDecoration: 'none',
-            }}
-          >
-            {row.original.number}
-          </Link>
-        ),
-      },
-      {
-        Header: 'Client',
-        accessor: 'client.name',
-        width: 90,
-        minWidth: 90,
-        maxWidth: 90,
-      },
-      {
-        Header: 'Amount',
-        Cell: ({ row }) => (
-          <div style={{ textAlign: 'right' }}>
-            {new Intl.NumberFormat('en-US', {
-              style: 'decimal',
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            }).format(row.original.timeAmount + row.original.chargeAmount)}
-          </div>
-        ),
-        width: 40,
-        minWidth: 40,
-        maxWidth: 40,
-      },
-    ]
-    return [columns, tableData]
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tableData])
-
-  const defaultColumn = useMemo(
-    () => ({
-      // When using the useFlexLayout:
-      minWidth: 30, // minWidth is only used as a limit for resizing
-      width: 150, // width is used for both the flex-basis and flex-grow
-      maxWidth: 200, // maxWidth is only used as a limit for resizing
-      align: 'center',
-    }),
-    []
+  return (
+    <div className='ag-theme-alpine' style={{ width: '100%', height: '100%' }}>
+      <AgGridReact
+        ref={gridRef}
+        rowData={rowData}
+        columnDefs={columnDefs}
+        defaultColDef={defaultColDef}
+        pagination={true}
+        paginationAutoPageSize={true}
+      ></AgGridReact>
+    </div>
   )
-
-  const tableInstance = useTable(
-    {
-      columns,
-      data,
-      defaultColumn,
-      initialState: {
-        pageIndex: 0,
-        pageSize: 15,
-        hiddenColumns: ['claimId'],
-        sortBy: [{ id: 'date', desc: true }],
-      },
-    },
-    useFlexLayout,
-    useSortBy,
-    usePagination,
-    useRowSelect
-  )
-
-  return <TableLayout {...tableInstance} />
 }
+export default BilledListDetail

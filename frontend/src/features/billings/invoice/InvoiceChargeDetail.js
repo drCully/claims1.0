@@ -6,7 +6,6 @@ import { STablePrint } from '../../../styles/tableStyles'
 import { useChargesQuery } from '../../charges/chargesApiSlice'
 
 const headerProps = (props, { column }) => getStyles(props, column.align)
-//const cellProps = (props, { cell }) => getStyles(props, cell.column.align)
 const getStyles = (props, align = 'left') => [
   props,
   {
@@ -72,11 +71,7 @@ function Table({ columns, data }) {
 }
 
 export function InvoiceChargeDetail({ invoice }) {
-  const {
-    data: charges,
-    isLoading,
-    isSuccess,
-  } = useChargesQuery(`invoice=${invoice}`)
+  const { data: charges, isLoading } = useChargesQuery(`invoice=${invoice}`)
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -99,12 +94,11 @@ export function InvoiceChargeDetail({ invoice }) {
     {
       Header: 'Description',
       accessor: 'description',
-      width: 250,
+      width: 350,
       minWidth: 150,
-      maxWidth: 250,
-      style: {
-        whiteSpace: 'normal',
-      }, // allow wrap inside cell
+      maxWidth: 500,
+      wrapText: true,
+      autoHeight: true,
     },
     {
       Header: 'Amount',

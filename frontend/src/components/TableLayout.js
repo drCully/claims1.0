@@ -64,6 +64,7 @@ export const TableLayout = ({
           </>
         )}
       </SFlexContainer>
+
       <table {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (

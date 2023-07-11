@@ -131,7 +131,7 @@ const updateTimeslip = asyncHandler(async (req, res) => {
 })
 
 // @desc    Delete timelip
-// @route   DELETE /timeslip/:id
+// @route   DELETE /timeslips/:id
 // @access  Private/Admin
 const deleteTimeslip = asyncHandler(async (req, res) => {
   const timeslip = await Timeslip.findById(req.params.id)

@@ -2,21 +2,21 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { toast } from 'react-toastify'
-import { SFlexCol, SFlexContainer } from '../../styles/containerStyles'
 import {
-  SForm,
-  SFormControl,
+  SFlexCol,
+  SFixedContainer,
+  SFlexContainer,
+} from '../../styles/containerStyles'
+import {
+  SFormPlain,
+  SFormControl2,
   SFormTitle,
   SInput,
   SLabel,
   SSelect,
 } from '../../styles/formStyles'
 import { SButton } from '../../styles/buttonStyles'
-import {
-  useCreateClaimMutation,
-  useClaimQuery,
-  useUpdateClaimMutation,
-} from './claimsApiSlice'
+import { useClaimQuery, useUpdateClaimMutation } from './claimsApiSlice'
 import { useUserLookupQuery } from '../users/usersApiSlice'
 import { useClientLookupQuery } from '../clients/clientsApiSlice'
 
@@ -34,9 +34,6 @@ const Claim = () => {
   }
 
   const [formValues, setFormValues] = useState(initialValues)
-  const [editMode, setEditMode] = useState(false)
-  const [createClaim] = useCreateClaimMutation()
-  const [updateClaim] = useUpdateClaimMutation()
 
   const {
     number,
@@ -50,38 +47,20 @@ const Claim = () => {
     isActive,
   } = formValues
 
+  const [editMode, setEditMode] = useState(false)
+  const [updateClaim] = useUpdateClaimMutation()
   const navigate = useNavigate()
 
   let { id } = useParams()
-  if (!id) {
-    id = ''
-  }
-  const { data, error } = useClaimQuery(id)
+  const { data: claim, isSuccess } = useClaimQuery(id)
   const { data: userlookup } = useUserLookupQuery()
   const { data: clientlookup } = useClientLookupQuery()
 
   useEffect(() => {
-    if (userlookup) {
-      console.log(userlookup)
+    if (isSuccess) {
+      setFormValues({ ...claim })
     }
-  })
-  useEffect(() => {
-    if (error && id) {
-      toast.error('Something went wrong')
-    }
-  }, [error, id])
-
-  useEffect(() => {
-    if (id) {
-      setEditMode(true)
-      if (data) {
-        setFormValues({ ...data })
-      }
-    } else {
-      setEditMode(false)
-      setFormValues({ ...initialValues })
-    }
-  }, [id, data])
+  }, [isSuccess])
 
   const handleInputChange = (event) => {
     let target = event.target
@@ -90,167 +69,201 @@ const Claim = () => {
     setFormValues({ ...formValues, [name]: value })
   }
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     if (!formValues.name) {
       toast.error('Please provide value into each input field')
     } else {
       if (!editMode) {
-        await createClaim(formValues)
-        navigate('/claims')
-        toast.success('Claim Added Successfully')
+        setEditMode(true)
       } else {
         await updateClaim(formValues)
         setEditMode(false)
-        navigate('/claims')
         toast.success('Claim Updated Successfully')
       }
     }
   }
 
   const handleCancel = () => {
-    setEditMode(false)
-    setFormValues({ ...initialValues })
-    navigate(-1)
+    if (editMode) {
+      setEditMode(false)
+    } else {
+      setEditMode(false)
+      setFormValues({ ...initialValues })
+      navigate(-1)
+    }
   }
 
   return (
-    <SFlexContainer gap='2rem'>
-      <SForm onSubmit={handleSubmit}>
-        <SFormTitle>{editMode ? 'Edit Claim' : 'Add New Claim'}</SFormTitle>
-        <SFormControl>
-          <SLabel htmlFor='number'>Number</SLabel>
-          <SInput
-            type='text'
-            id='number'
-            name='number'
-            value={number}
-            onChange={handleInputChange}
-            width='100%'
-          />
-        </SFormControl>
-        <SFormControl>
-          <SLabel htmlFor='name'>Name</SLabel>
-          <SInput
-            type='text'
-            id='name'
-            name='name'
-            value={name}
-            onChange={handleInputChange}
-            width='100%'
-          />
-        </SFormControl>
-        <SFormControl>
-          <SLabel htmlFor='claimant'>Claimant</SLabel>
-          <SInput
-            type='text'
-            id='claimant'
-            name='claimant'
-            value={claimant}
-            onChange={handleInputChange}
-            width='100%'
-          />
-        </SFormControl>
-        <SFormControl></SFormControl>
-        <SFormControl>
-          <SLabel htmlFor='manager'>Manager</SLabel>
-          <SSelect
-            id='manager'
-            name='manager'
-            value={manager}
-            onChange={handleInputChange}
-            width='100%'
-          >
-            <option value=''> -- Select Claim Manager -- </option>
-            {userlookup?.map((user) => (
-              <option key={user._id} value={user._id}>
-                {user.firstname}
-              </option>
-            ))}
-          </SSelect>
-        </SFormControl>
-        <SFormControl>
-          <SLabel htmlFor='client'>Client</SLabel>
-          <SSelect
-            type='text'
-            id='client'
-            name='client'
-            value={client}
-            onChange={handleInputChange}
-            width='100%'
-          >
-            <option value=''> -- Select Client -- </option>
-            {clientlookup?.map((client) => (
-              <option key={client._id} value={client._id}>
-                {client.name}
-              </option>
-            ))}
-          </SSelect>
-        </SFormControl>
-        <SFormControl>
-          <SLabel htmlFor='reference'>Reference</SLabel>
-          <SInput
-            type='text'
-            id='reference'
-            name='reference'
-            value={reference}
-            onChange={handleInputChange}
-            width='100%'
-          />
-        </SFormControl>
-        <SFormControl>
-          <SLabel htmlFor='vessel'>Vessel</SLabel>
-          <SInput
-            type='text'
-            id='vessel'
-            name='vessel'
-            value={vessel}
-            onChange={handleInputChange}
-            width='100%'
-          />
-        </SFormControl>
-        <SFormControl>
-          <SLabel htmlFor='dol'>DOL/DOI</SLabel>
-          <SInput
-            type='Date'
-            id='dol'
-            name='dol'
-            value={format(parseISO(dol), 'yyyy-MM-dd')}
-            onChange={handleInputChange}
-            width='100%'
-          />
-        </SFormControl>
-        <SFormControl style={{ marginTop: '1.1rem' }}>
-          <SLabel htmlFor='isActive'>Active?</SLabel>
-          <SInput
-            type='checkbox'
-            id='isActive'
-            name='isActive'
-            value={isActive}
-            checked={isActive}
-            onChange={handleInputChange}
-            style={{ cursor: 'pointer' }}
-            width={`2rem`}
-            height={`1.1rem`}
-          />
-        </SFormControl>
-
-        <SFlexContainer>
-          <SButton type='submit' margin='.5rem'>
-            {editMode ? 'Update' : 'Save'}
-          </SButton>
-
-          <SButton
-            background='gray'
-            type='button'
-            margin='.5rem'
-            onClick={handleCancel}
-          >
-            Cancel
-          </SButton>
-        </SFlexContainer>
-      </SForm>
-    </SFlexContainer>
+    <SFormPlain onSubmit={handleSubmit} padding='0'>
+      <SFlexContainer justify='space-between' align='start'>
+        <SFlexCol>
+          <SFormTitle>{editMode ? 'Edit Claim ' : name}</SFormTitle>
+          <SFlexContainer wrap='wrap' justify='space-evenly'>
+            <SFormControl2 width='7rem'>
+              <SLabel htmlFor='number'>Number</SLabel>
+              <SInput
+                type='text'
+                id='number'
+                name='number'
+                value={number}
+                disabled={!editMode}
+                onChange={handleInputChange}
+                width='100%'
+              />
+            </SFormControl2>
+            <SFormControl2 width='20rem'>
+              <SLabel htmlFor='name'>Our Reference</SLabel>
+              <SInput
+                type='text'
+                id='name'
+                name='name'
+                value={name}
+                disabled={!editMode}
+                onChange={handleInputChange}
+                width='100%'
+              />
+            </SFormControl2>
+            <SFormControl2 width='15rem'>
+              <SLabel htmlFor='claimant'>Claimant</SLabel>
+              <SInput
+                type='text'
+                id='claimant'
+                name='claimant'
+                value={claimant || ''}
+                disabled={!editMode}
+                onChange={handleInputChange}
+                width='100%'
+              />
+            </SFormControl2>
+            <SFormControl2 width='10rem'>
+              <SLabel htmlFor='manager'>Manager</SLabel>
+              <SSelect
+                id='manager'
+                name='manager'
+                value={manager._id}
+                disabled={!editMode}
+                onChange={handleInputChange}
+                width='100%'
+              >
+                <option value=''> -- Select Claim Manager -- </option>
+                {userlookup?.map((user) => (
+                  <option key={user._id} value={user._id}>
+                    {user.firstName}
+                  </option>
+                ))}
+              </SSelect>
+            </SFormControl2>
+            <SFormControl2 width='18rem'>
+              <SLabel htmlFor='client'>Client</SLabel>
+              <SSelect
+                type='text'
+                id='client'
+                name='client'
+                value={client._id}
+                disabled={!editMode}
+                onChange={handleInputChange}
+                width='100%'
+              >
+                <option value=''> -- Select Client -- </option>
+                {clientlookup?.map((client) => (
+                  <option key={client._id} value={client._id}>
+                    {client.name}
+                  </option>
+                ))}
+              </SSelect>
+            </SFormControl2>
+            <SFormControl2 width='15rem'>
+              <SLabel htmlFor='reference'>Client Reference</SLabel>
+              <SInput
+                type='text'
+                id='reference'
+                name='reference'
+                value={reference || ''}
+                disabled={!editMode}
+                onChange={handleInputChange}
+                width='100%'
+              />
+            </SFormControl2>
+            <SFormControl2 width='15rem'>
+              <SLabel htmlFor='vessel'>Vessel</SLabel>
+              <SInput
+                type='text'
+                id='vessel'
+                name='vessel'
+                value={vessel || ''}
+                disabled={!editMode}
+                onChange={handleInputChange}
+                width='100%'
+              />
+            </SFormControl2>
+            <SFormControl2 width='10rem'>
+              <SLabel htmlFor='dol'>DOL/DOI</SLabel>
+              <SInput
+                type='Date'
+                id='dol'
+                name='dol'
+                value={format(parseISO(dol), 'yyyy-MM-dd')}
+                disabled={!editMode}
+                onChange={handleInputChange}
+                width='100%'
+              />
+            </SFormControl2>
+            <SFlexContainer>
+              <SFormControl2 style={{ marginTop: '1rem' }}>
+                <SLabel htmlFor='isActive'>Active?</SLabel>
+                <SInput
+                  type='checkbox'
+                  id='isActive'
+                  name='isActive'
+                  value={isActive}
+                  checked={isActive}
+                  disabled={!editMode}
+                  onChange={handleInputChange}
+                  style={{ cursor: 'pointer' }}
+                  width={`2rem`}
+                  height={`1.1rem`}
+                />
+              </SFormControl2>
+            </SFlexContainer>
+          </SFlexContainer>
+        </SFlexCol>
+        <SFlexCol>
+          <SFixedContainer minwidth='8rem'>
+            <SButton type='submit' width='100%' margin='.3rem'>
+              {editMode ? 'Save' : 'Edit'}
+            </SButton>
+            {editMode ? (
+              <SButton
+                background='gray'
+                type='button'
+                width='100%'
+                margin='.3rem'
+                onClick={handleCancel}
+              >
+                Cancel
+              </SButton>
+            ) : (
+              ''
+            )}
+            {editMode ? (
+              ''
+            ) : (
+              <SButton
+                width='100%'
+                margin={'.3rem'}
+                background='gray'
+                onClick={() => {
+                  navigate(-1)
+                }}
+              >
+                Go Back
+              </SButton>
+            )}
+          </SFixedContainer>
+        </SFlexCol>
+      </SFlexContainer>
+    </SFormPlain>
   )
 }
 

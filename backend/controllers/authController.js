@@ -34,7 +34,7 @@ const handleSignin = async (req, res) => {
     const newRefreshToken = jwt.sign(
       { userId: foundUser._id },
       process.env.REFRESH_TOKEN_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '1d' }
     )
 
     let newRefreshTokenArray = !cookies?.jwt

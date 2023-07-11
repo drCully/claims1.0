@@ -330,7 +330,7 @@ const InvoiceToPrint = forwardRef((props, ref) => {
                   fontWeight: 'bolder',
                 }}
               >
-                Adjuster Time:
+                Adjuster Time
               </div>
               <InvoiceTimeDetail invoice={invoiceData._id} />
             </>
@@ -341,12 +341,13 @@ const InvoiceToPrint = forwardRef((props, ref) => {
             <>
               <div
                 style={{
+                  marginTop: '1rem',
                   color: 'rgb(255, 106, 0)',
                   fontSize: '.85rem',
                   fontWeight: 'bolder',
                 }}
               >
-                Charges:
+                Charges
               </div>
 
               <InvoiceChargeDetail invoice={invoiceData._id} />

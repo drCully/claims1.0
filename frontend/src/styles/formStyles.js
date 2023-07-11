@@ -14,15 +14,13 @@ export const SFormPlain = styled.form`
   width: 100%;
   min-width: ${({ minwidth }) => minwidth || '0'};
   background: ${({ theme }) => theme.bg};
-  padding: ${v.mdSpacing};
+  padding: ${({ padding }) => padding || '16px'};
 `
-
 export const SFormTitle = styled.span`
-  font-size: 24px;
+  font-size: 1.4rem;
   font-weight: 600;
-  color: ${({ theme }) => theme.primary};
+  color: ${({ theme }) => theme.primary2};
 `
-
 export const SFormControl = styled.div`
   width: ${({ width }) => width || '100%'};
   margin: ${({ margin }) => margin || '0'};
@@ -35,9 +33,14 @@ export const SFormControl = styled.div`
   }
 `
 
+export const SFormControl2 = styled.div`
+  margin: ${({ margin }) => margin || '0 .7rem .7rem'};
+  width: ${({ width }) => width || ''};
+`
+
 export const SLabel = styled.label`
   display: inline-block;
-  font-size: 1em;
+  font-size: 0.98em;
   font-weight: 600;
   margin: ${({ margin }) => margin || '0 .75rem'};
   margin-bottom: calc(${v.smSpacing} / 4);
@@ -48,7 +51,7 @@ export const SInput = styled.input`
   border: 1px solid ${({ theme }) => theme.textFade};
   width: ${({ width }) => width || '20%'};
   margin: ${({ margin }) => margin || '0'};
-  padding: ${v.smSpacing};
+  padding: ${({ padding }) => padding || '.3rem'};
   font-family: inherit;
   font-size: 1em;
   border-radius: ${v.borderRadius};
@@ -58,7 +61,8 @@ export const SSelect = styled.select`
   outline: none;
   border: 1px solid ${({ theme }) => theme.textFade};
   width: ${({ width }) => width || '20%'};
-  padding: ${v.smSpacing};
+  //padding: ${v.smSpacing};
+  padding: 0.3rem;
   font-size: 1em;
   border-radius: ${v.borderRadius};
 `

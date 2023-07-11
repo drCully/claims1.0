@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import useAuth from '../../hooks/useAuth'
 import { format, parseISO } from 'date-fns'
@@ -68,16 +68,13 @@ const Timeslip = () => {
   } = formValues
 
   const navigate = useNavigate()
-  const { id } = useParams()
-  const { data, error } = useTimeslipQuery(id)
+  let { id } = useParams()
+  if (!id) {
+    id = undefined
+  }
+  const { data } = useTimeslipQuery(id)
   const { data: claimlookup } = useClaimLookupQuery()
   const { data: userlookup } = useUserLookupQuery()
-
-  useEffect(() => {
-    if (error && id) {
-      toast.error('Something went wrong')
-    }
-  }, [error, id])
 
   useEffect(() => {
     if (id) {
@@ -99,10 +96,10 @@ const Timeslip = () => {
     setFormValues({ ...formValues, [name]: value })
   }
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     if (!date && !timekeeper && !claim && !description && !rate) {
-      toast.error('Please complete each input field')
+      toast.error('Fields must not be left blank')
     } else {
       if (!editMode) {
         await createTime(formValues)
@@ -118,8 +115,9 @@ const Timeslip = () => {
     }
   }
 
-  const handleCancel = () => {
-    setEditMode(false)
+  const handleCancel = async (e) => {
+    e.preventDefault()
+    setEditMode(!editMode)
     setFormValues({ ...initialValues })
     navigate(-1)
   }

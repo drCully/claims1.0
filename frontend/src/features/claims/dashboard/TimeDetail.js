@@ -1,16 +1,17 @@
-import { useState, useRef, useMemo, useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
-
+import { useEffect, useState, useMemo } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { toast } from 'react-toastify'
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa'
 import { AgGridReact } from 'ag-grid-react'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
+import { SButtonLink } from '../../../styles/buttonStyles'
 
-import { useDeleteTimeslipMutation } from '../../timeslips/timeslipsApiSlice'
-import { setSelectedTime, setTimeAmount } from '../billingSlice'
+import {
+  useTimeslipsQuery,
+  useDeleteTimeslipMutation,
+} from '../../timeslips/timeslipsApiSlice'
 
 const numberFormatter = (params) => {
   return new Intl.NumberFormat('en-US', {
@@ -20,13 +21,16 @@ const numberFormatter = (params) => {
 }
 
 const TimeDetail = () => {
-  const dispatch = useDispatch()
+  let { id } = useParams()
 
-  const { timeItems, selectedTime } = useSelector((state) => state.billing)
+  const {
+    data: timeslips,
+    isLoading,
+    isSuccess,
+  } = useTimeslipsQuery(`claim=${id}`)
   const [deleteTimeslip] = useDeleteTimeslipMutation()
 
-  const gridRef = useRef()
-  const [rowData, setRowData] = useState(timeItems)
+  const [rowData, setRowData] = useState(timeslips)
   const [columnDefs] = useState([
     {
       headerName: 'Date',
@@ -37,8 +41,6 @@ const TimeDetail = () => {
       minWidth: 145,
       sortable: true,
       sort: 'asc',
-      headerCheckboxSelection: true,
-      checkboxSelection: true,
     },
     {
       headerName: 'TK',
@@ -106,30 +108,6 @@ const TimeDetail = () => {
     }
   }, [])
 
-  const onGridReady = useCallback((params) => {
-    setRowData(timeItems)
-  }, [])
-
-  const onFirstDataRendered = useCallback((params) => {
-    const refreshSelected = selectedTime
-    gridRef.current.api.deselectAll(true)
-    gridRef.current.api.forEachNode((node) =>
-      refreshSelected.map((item) => {
-        if (item._id === node.data._id) {
-          node.setSelected(true)
-        }
-      })
-    )
-  }, [])
-
-  const onSelectionChanged = useCallback((event) => {
-    const selectedRows = event.api.getSelectedRows()
-    dispatch(setSelectedTime(selectedRows))
-
-    const timeAmount = selectedRows.reduce((acc, item) => acc + item.total, 0)
-    dispatch(setTimeAmount(timeAmount))
-  }, [])
-
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this time record? ')) {
       await deleteTimeslip(id)
@@ -137,20 +115,37 @@ const TimeDetail = () => {
     }
   }
 
+  useEffect(() => {
+    if (isSuccess) {
+      setRowData(timeslips)
+    }
+  }, [isSuccess, timeslips])
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
   return (
-    <div className='ag-theme-alpine' style={{ height: '100%' }}>
-      <AgGridReact
-        ref={gridRef}
-        rowData={rowData}
-        columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
-        rowSelection={'multiple'}
-        rowMultiSelectWithClick={true}
-        onGridReady={onGridReady}
-        onFirstDataRendered={onFirstDataRendered}
-        onSelectionChanged={onSelectionChanged}
-      ></AgGridReact>
-    </div>
+    <>
+      <SButtonLink
+        to={'/timeslips/add'}
+        margin={'0 0 .3rem 0'}
+        fsize={'.9rem'}
+        padding={'0.1rem 0.4rem'}
+      >
+        Add Time
+      </SButtonLink>
+      <div
+        className='ag-theme-alpine'
+        style={{ height: 'calc(100vh - 27rem)' }}
+      >
+        <AgGridReact
+          rowData={rowData}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+        ></AgGridReact>
+      </div>
+    </>
   )
 }
 export default TimeDetail

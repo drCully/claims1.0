@@ -1,19 +1,14 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { toast } from 'react-toastify'
 import { FaCheck, FaTimes, FaRegEye } from 'react-icons/fa'
-import {
-  useTable,
-  useFlexLayout,
-  usePagination,
-  useRowSelect,
-  useSortBy,
-} from 'react-table'
-import { TableLayout } from '../../components/TableLayout'
+import { AgGridReact } from 'ag-grid-react'
+import 'ag-grid-community/styles/ag-grid.css'
+import 'ag-grid-community/styles/ag-theme-alpine.css'
 import { useClaimsQuery, useDeleteClaimMutation } from './claimsApiSlice'
 
-export function ClaimsListDetail({ searchClaim, activeStatus }) {
+const ClaimsListDetail = ({ searchClaim, activeStatus }) => {
   const { data: claims, isLoading } = useClaimsQuery(
     `name=${searchClaim}&isActive=${activeStatus}`,
     {
@@ -21,14 +16,90 @@ export function ClaimsListDetail({ searchClaim, activeStatus }) {
     }
   )
 
-  const [tableData, setTableData] = useState(null)
   const [deleteClaim] = useDeleteClaimMutation()
 
+  const gridRef = useRef()
+  const [rowData, setRowData] = useState()
+  const [columnDefs, setColumnDefs] = useState([
+    {
+      field: 'number',
+      width: 100,
+      minWidth: 100,
+      maxWidth: 100,
+      sortable: true,
+    },
+    {
+      headerName: 'Claim',
+      field: 'name',
+      flex: 3,
+      minWidth: 200,
+      sortable: true,
+      sort: 'asc',
+    },
+    {
+      field: 'vessel',
+      flex: 2,
+      minWidth: 150,
+      sortable: true,
+    },
+    {
+      headerName: 'DOL/DOI',
+      field: 'dol',
+      valueFormatter: (params) => {
+        return format(parseISO(params.value), 'MM/dd/yyyy')
+      },
+      maxWidth: 120,
+      minWidth: 90,
+      sortable: true,
+    },
+    {
+      headerName: 'Active?',
+      field: 'isActive',
+      cellRenderer: (params) => (
+        <div style={{ textAlign: 'center' }}>
+          {params.value ? (
+            <FaCheck style={{ color: 'green' }} />
+          ) : (
+            <FaTimes style={{ color: 'red' }} />
+          )}
+        </div>
+      ),
+      width: 80,
+      minWidth: 80,
+      maxWidth: 80,
+    },
+    {
+      headerName: 'Actions',
+      field: 'id',
+      cellRenderer: (params) => (
+        <div>
+          <Link to={`/claims/dashboard/${params.data._id}`}>
+            <FaRegEye style={{ color: 'OrangeRed', marginRight: '.7em' }} />
+          </Link>
+        </div>
+      ),
+      cellStyle: { textAlign: 'center' },
+      resizable: false,
+      maxWidth: 100,
+    },
+  ])
+
+  // DefaultColDef sets props common to all Columns
+  const defaultColDef = useMemo(() => {
+    return {
+      resizable: true,
+    }
+  }, [])
+
+  const onGridReady = useCallback((params) => {
+    setRowData(claims)
+  }, [])
+
   useEffect(() => {
-    setTableData(claims)
+    setRowData(claims)
   }, [claims])
 
-  if (isLoading || !tableData) {
+  if (isLoading) {
     return <div>Loading...</div>
   }
 
@@ -39,113 +110,17 @@ export function ClaimsListDetail({ searchClaim, activeStatus }) {
     }
   }
 
-  return <TableInstance tableData={tableData} handleDelete={handleDelete} />
-}
-
-const TableInstance = ({ tableData, handleDelete }) => {
-  const [columns, data] = useMemo(() => {
-    const columns = [
-      {
-        Header: 'Number',
-        accessor: 'number',
-        width: 40,
-        minWidth: 40,
-        maxWidth: 40,
-      },
-      {
-        Header: 'Name',
-        accessor: 'name',
-        width: 150,
-        minWidth: 150,
-        maxWidth: 150,
-      },
-      {
-        Header: 'Vessel',
-        accessor: 'vessel',
-        width: 70,
-        minWidth: 70,
-        maxWidth: 70,
-      },
-      {
-        Header: 'DOL/DOI',
-        accessor: 'dol',
-        Cell: ({ value }) => (
-          <div style={{ textAlign: 'center' }}>
-            {format(parseISO(value), 'MM/dd/yyyy')}
-          </div>
-        ),
-        width: 60,
-        minWidth: 60,
-        maxWidth: 60,
-      },
-      {
-        Header: 'Active?',
-        accessor: 'isActive',
-        Cell: ({ value }) => (
-          <div style={{ textAlign: 'center' }}>
-            {value ? (
-              <FaCheck style={{ color: 'green' }} />
-            ) : (
-              <FaTimes style={{ color: 'red' }} />
-            )}
-          </div>
-        ),
-        width: 30,
-        minWidth: 30,
-        maxWidth: 30,
-      },
-    ]
-    return [columns, tableData]
-  }, [tableData])
-
-  const defaultColumn = useMemo(
-    () => ({
-      // When using the useFlexLayout:
-      minWidth: 30, // minWidth is only used as a limit for resizing
-      width: 150, // width is used for both the flex-basis and flex-grow
-      maxWidth: 200, // maxWidth is only used as a limit for resizing
-      align: 'center',
-    }),
-    []
+  return (
+    <div className='ag-theme-alpine' style={{ width: '100%', height: '100%' }}>
+      <AgGridReact
+        ref={gridRef}
+        rowData={rowData}
+        columnDefs={columnDefs}
+        defaultColDef={defaultColDef}
+        pagination={true}
+        paginationAutoPageSize={true}
+      ></AgGridReact>
+    </div>
   )
-
-  const actionColumn = (hooks) => {
-    hooks.visibleColumns.push((columns) => [
-      ...columns,
-      {
-        Header: 'Details',
-        minWidth: 25,
-        width: 25,
-        maxWidth: 30,
-        align: 'center',
-        Cell: ({ row }) => (
-          <div style={{ textAlign: 'center' }}>
-            <Link to={`/claims/admin/${row.original._id}`}>
-              <FaRegEye style={{ color: 'OrangeRed', marginRight: '.7em' }} />
-            </Link>
-          </div>
-        ),
-      },
-    ])
-  }
-
-  const tableInstance = useTable(
-    {
-      columns,
-      data,
-      defaultColumn,
-      initialState: {
-        pageIndex: 0,
-        pageSize: 15,
-        sortBy: [{ id: 'name', desc: false }],
-      },
-    },
-    useFlexLayout,
-    useSortBy,
-    usePagination,
-    useRowSelect,
-    actionColumn
-  )
-
-  return <TableLayout {...tableInstance} />
 }
+export default ClaimsListDetail

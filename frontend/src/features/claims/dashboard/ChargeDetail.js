@@ -1,16 +1,17 @@
-import { useState, useRef, useMemo, useCallback } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
-
-import { AgGridReact } from 'ag-grid-react'
+import { useEffect, useState, useMemo } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { toast } from 'react-toastify'
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa'
+import { AgGridReact } from 'ag-grid-react'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
+import { SButtonLink } from '../../../styles/buttonStyles'
 
-import { useDeleteChargeMutation } from '../../charges/chargesApiSlice'
-import { setSelectedCharges, setChargeAmount } from '../billingSlice'
+import {
+  useChargesQuery,
+  useDeleteChargeMutation,
+} from '../../charges/chargesApiSlice'
 
 const numberFormatter = (params) => {
   return new Intl.NumberFormat('en-US', {
@@ -20,13 +21,12 @@ const numberFormatter = (params) => {
 }
 
 const ChargeDetail = () => {
-  const dispatch = useDispatch()
+  let { id } = useParams()
 
-  const { chargeItems, selectedCharges } = useSelector((state) => state.billing)
+  const { data: charges, isLoading, isSuccess } = useChargesQuery(`claim=${id}`)
   const [deleteCharge] = useDeleteChargeMutation()
 
-  const gridRef = useRef()
-  const [rowData, setRowData] = useState()
+  const [rowData, setRowData] = useState(charges)
   const [columnDefs] = useState([
     {
       headerName: 'Date',
@@ -37,8 +37,6 @@ const ChargeDetail = () => {
       minWidth: 145,
       sortable: true,
       sort: 'asc',
-      headerCheckboxSelection: true,
-      checkboxSelection: true,
     },
     { field: 'description', flex: 4, wrapText: true, autoHeight: true },
     {
@@ -82,30 +80,6 @@ const ChargeDetail = () => {
     }
   }, [])
 
-  const onGridReady = useCallback((params) => {
-    setRowData(chargeItems)
-  }, [])
-
-  const onFirstDataRendered = useCallback((params) => {
-    const refreshSelected = selectedCharges
-    gridRef.current.api.deselectAll(true)
-    gridRef.current.api.forEachNode((node) =>
-      refreshSelected.map((item) => {
-        if (item._id === node.data._id) {
-          node.setSelected(true)
-        }
-      })
-    )
-  }, [])
-
-  const onSelectionChanged = useCallback((event) => {
-    const selectedRows = event.api.getSelectedRows()
-    dispatch(setSelectedCharges(selectedRows))
-
-    const chargeAmount = selectedRows.reduce((acc, item) => acc + item.total, 0)
-    dispatch(setChargeAmount(chargeAmount))
-  }, [])
-
   const handleDelete = async (id) => {
     if (
       window.confirm('Are you sure you want to delete this charge record? ')
@@ -115,20 +89,37 @@ const ChargeDetail = () => {
     }
   }
 
+  useEffect(() => {
+    if (isSuccess) {
+      setRowData(charges)
+    }
+  }, [isSuccess, charges])
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
   return (
-    <div className='ag-theme-alpine' style={{ height: '100%' }}>
-      <AgGridReact
-        ref={gridRef}
-        rowData={rowData}
-        columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
-        rowSelection={'multiple'}
-        rowMultiSelectWithClick={true}
-        onGridReady={onGridReady}
-        onFirstDataRendered={onFirstDataRendered}
-        onSelectionChanged={onSelectionChanged}
-      ></AgGridReact>
-    </div>
+    <>
+      <SButtonLink
+        to={'/charges/add'}
+        margin={'0 0 .3rem 0'}
+        fsize={'.9rem'}
+        padding={'0.1rem 0.4rem'}
+      >
+        Add Charge
+      </SButtonLink>
+      <div
+        className='ag-theme-alpine'
+        style={{ height: 'calc(100vh - 27rem)' }}
+      >
+        <AgGridReact
+          rowData={rowData}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+        ></AgGridReact>
+      </div>
+    </>
   )
 }
 export default ChargeDetail

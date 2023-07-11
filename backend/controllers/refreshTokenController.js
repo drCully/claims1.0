@@ -64,7 +64,7 @@ const handleRefreshToken = async (req, res) => {
       const newRefreshToken = jwt.sign(
         { userId: decoded.userId },
         process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: '1h' }
+        { expiresIn: '1d' }
       )
       // Saving refreshToken with current user
       foundUser.refreshToken = [...newRefreshTokenArray, newRefreshToken]

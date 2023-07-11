@@ -15,6 +15,7 @@ export const SPageContainer = styled.main`
 `
 export const SFlexContainer = styled.div`
   display: flex;
+  flex-wrap: ${({ wrap }) => wrap || 'nowrap'};
   justify-content: ${({ justify }) => justify || 'end'};
   align-items: ${({ align }) => align || 'center'};
   margin: ${({ margin }) => margin || '0'};

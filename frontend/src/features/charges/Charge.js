@@ -50,16 +50,10 @@ const Charge = () => {
   const navigate = useNavigate()
   let { id } = useParams()
   if (!id) {
-    id = ''
+    id = undefined
   }
-  const { data, error } = useChargeQuery(id)
+  const { data } = useChargeQuery(id)
   const { data: claimlookup } = useClaimLookupQuery()
-
-  useEffect(() => {
-    if (error && id) {
-      toast.error('Something went wrong')
-    }
-  }, [error, id])
 
   useEffect(() => {
     if (id) {
@@ -88,10 +82,9 @@ const Charge = () => {
       !formValues.description &&
       !formValues.amount
     ) {
-      toast.error('Please provide value into each input field')
+      toast.error('Feilds must not be left blank')
     } else {
       if (!editMode) {
-        console.log(formValues)
         await createCharge(formValues)
         dispatch(setLastClaim(formValues.claim))
         navigate('/charges')

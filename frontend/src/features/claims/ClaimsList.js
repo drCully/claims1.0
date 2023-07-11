@@ -1,8 +1,12 @@
 import { useState } from 'react'
 import { SButtonLink } from '../../styles/buttonStyles'
 import { s } from '../../styles/variables'
-import { ClaimsListDetail } from './ClaimsListDetail'
-import { SFixedContainer, SFlexContainer } from '../../styles/containerStyles'
+import ClaimsListDetail from './ClaimsListDetail'
+import {
+  SFixedContainer,
+  SFlexContainer,
+  SFlexCol,
+} from '../../styles/containerStyles'
 import { SInput, SSelect } from '../../styles/formStyles'
 
 const ClaimsList = () => {
@@ -20,30 +24,43 @@ const ClaimsList = () => {
 
   return (
     <SFixedContainer maxwidth={`${s.lg}`}>
-      <h2>Claims</h2>
-      <SFlexContainer>
-        <SSelect
-          onChange={(event) => {
-            onChangeActiveStatus(event)
-          }}
-          width='10rem'
-        >
-          <option value='true'>Show Active</option>
-          <option value='false'>Show Closed</option>
-          <option value=''>Show All</option>
-        </SSelect>
-        <SInput
-          type='search'
-          className='form-control'
-          placeholder='Search by claim'
-          value={searchClaim}
-          onChange={onChangeSearchClaim}
-          width={'20rem'}
-          margin={'0 1em'}
-        />
-        <SButtonLink to={'/claims/add'}>Add New</SButtonLink>
+      <SFlexContainer justify='space-between' align='start'>
+        <SFlexCol>
+          <h2>Claims</h2>
+        </SFlexCol>
+        <SFlexCol>
+          <SFlexContainer>
+            <SSelect
+              onChange={(event) => {
+                onChangeActiveStatus(event)
+              }}
+              width='10rem'
+            >
+              <option value='true'>Show Active</option>
+              <option value='false'>Show Closed</option>
+              <option value=''>Show All</option>
+            </SSelect>
+            <SInput
+              type='search'
+              className='form-control'
+              placeholder='Search by claim'
+              value={searchClaim}
+              onChange={onChangeSearchClaim}
+              width={'20rem'}
+              margin={'0 1em'}
+            />
+            <SButtonLink to={'/claims/add'} padding={'0.18rem 0.5rem'}>
+              Add New
+            </SButtonLink>
+          </SFlexContainer>
+        </SFlexCol>
       </SFlexContainer>
-      <ClaimsListDetail searchClaim={searchClaim} activeStatus={activeStatus} />
+      <SFixedContainer height='calc(100vh - 15rem)' margin='1rem 0 0'>
+        <ClaimsListDetail
+          searchClaim={searchClaim}
+          activeStatus={activeStatus}
+        />
+      </SFixedContainer>
     </SFixedContainer>
   )
 }

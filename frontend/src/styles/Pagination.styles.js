@@ -14,13 +14,14 @@ export const SPaginate = styled(ReactPaginate).attrs({
 
   li a {
     border-radius: ${v.borderRadius};
-    padding: ${v.smSpacing} 1em;
-    margin: 0.15rem;
+    //padding: ${v.smSpacing} 1em;
+    padding: 0.3rem 1em;
+    margin: 0.1rem;
     border: 1px solid ${({ theme }) => theme.textFade};
     cursor: pointer;
     &:hover {
       background-color: ${({ theme }) => theme.primary};
-      opacity: 0.98;
+      opacity: 0.7;
       transform: scale(0.98);
       color: ${({ theme }) => theme.textInvert};
     }

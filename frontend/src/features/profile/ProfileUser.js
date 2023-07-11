@@ -46,19 +46,13 @@ const User = () => {
   const [updateUser] = useUpdateUserProfileMutation()
   const navigate = useNavigate()
 
-  const { data, error } = useUserProfileQuery(currentUser.userId)
+  const { data: user } = useUserProfileQuery(currentUser.userId)
 
   useEffect(() => {
-    if (error) {
-      toast.error('Something went wrong')
+    if (user) {
+      setFormValues({ ...user })
     }
-  }, [error])
-
-  useEffect(() => {
-    if (data) {
-      setFormValues({ ...data })
-    }
-  }, [data])
+  }, [user])
 
   const handleInputChange = (event) => {
     let target = event.target
@@ -70,8 +64,8 @@ const User = () => {
     }))
   }
 
-  const handleSubmit = async (event) => {
-    event.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     if (!firstName && !lastName && !initials && !rate) {
       toast.error('Please provide value for required fields')
     } else {
@@ -81,7 +75,6 @@ const User = () => {
         if (!editMode) {
           setEditMode(true)
         } else {
-          //const userData = formValues.filter('password2')
           await updateUser(formValues)
           setEditMode(false)
           toast.success('Profile Updated Successfully')

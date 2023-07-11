@@ -1,21 +1,24 @@
 const Timeslip = require('../model/timeslipModel')
 const asyncHandler = require('express-async-handler')
 
-// @desc    Get time and expense records using search criteria
+// @desc    Get billable totals using search criteria
 // @route   GET /api/billing
 // @access  Public
 const getBillable = asyncHandler(async (req, res) => {
   const { claim, lastdate } = req.query
 
+  let condition = {}
+  if (lastdate) {
+    condition['date'] = {
+      $lte: new Date(lastdate),
+    }
+  }
+  condition['billable'] = true
+  condition['billed'] = false
+
   const billables = await Timeslip.aggregate([
     {
-      $match: {
-        billable: true,
-        billed: false,
-        date: {
-          $lte: new Date(lastdate),
-        },
-      },
+      $match: condition,
     },
     {
       $project: {
@@ -47,13 +50,7 @@ const getBillable = asyncHandler(async (req, res) => {
         coll: 'charges',
         pipeline: [
           {
-            $match: {
-              billable: true,
-              billed: false,
-              date: {
-                $lte: new Date(lastdate),
-              },
-            },
+            $match: condition,
           },
           {
             $project: {
@@ -108,6 +105,7 @@ const getBillable = asyncHandler(async (req, res) => {
     },
     {
       $match: {
+        claimName: { $regex: new RegExp(claim), $options: 'i' },
         $or: [
           {
             billableTime: {

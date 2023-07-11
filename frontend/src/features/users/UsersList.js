@@ -41,7 +41,9 @@ const UsersList = () => {
           width={'20rem'}
           margin={'0 1em'}
         ></SInput>
-        <SButtonLink to={'/users/add'}>Add New</SButtonLink>
+        <SButtonLink to={'/users/add'} padding={'0.18rem 0.5rem'}>
+          Add New
+        </SButtonLink>
       </SFlexContainer>
       <UsersListDetail searchUser={searchUser} activeStatus={activeStatus} />
     </SFixedContainer>

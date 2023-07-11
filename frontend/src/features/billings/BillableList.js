@@ -1,15 +1,25 @@
+import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { s } from '../../styles/variables'
-import { SFixedContainer, SFlexContainer } from '../../styles/containerStyles'
+import {
+  SFixedContainer,
+  SFlexContainer,
+  SFlexCol,
+} from '../../styles/containerStyles'
 import { SLabel, SInput } from '../../styles/formStyles'
 
-import { BillableListDetail } from './BillableListDetail'
+import BillableListDetail from './BillableListDetail'
 import { setAsOfDate } from './billingSlice'
 
 const BillableList = () => {
   const { asOfDate } = useSelector((state) => state.billing)
-
   const dispatch = useDispatch()
+
+  const [searchClaim, setSearchClaim] = useState('')
+  const onChangeSearchClaim = (event) => {
+    const searchClaim = event.target.value
+    setSearchClaim(searchClaim)
+  }
 
   const handleDateChange = (e) => {
     dispatch(setAsOfDate(e.target.value))
@@ -18,19 +28,34 @@ const BillableList = () => {
   return (
     <SFixedContainer maxwidth={`${s.md}`}>
       <h3>Billable</h3>
-      <SFlexContainer>
-        <SLabel margin={'0 .75em 0 2em'}>As of </SLabel>
-        <SInput
-          type='Date'
-          id='asOfDate'
-          name='asOfDate'
-          value={asOfDate}
-          onChange={handleDateChange}
-          width={'12rem'}
-          style={{ fontFamily: 'Roboto' }}
-        />
+      <SFlexContainer justify='space-between' align='start'>
+        <SFlexCol>
+          <SFlexContainer>
+            <SInput
+              type='search'
+              className='form-control'
+              placeholder='Search by claim name...'
+              value={searchClaim}
+              onChange={onChangeSearchClaim}
+              width={'20rem'}
+              margin={'0 1em'}
+            />
+            <SLabel margin={'0 .75em 0 2em'}>As of </SLabel>
+            <SInput
+              type='Date'
+              id='asOfDate'
+              name='asOfDate'
+              value={asOfDate}
+              onChange={handleDateChange}
+              width={'12rem'}
+              style={{ fontFamily: 'Roboto' }}
+            />
+          </SFlexContainer>
+        </SFlexCol>
       </SFlexContainer>
-      <BillableListDetail />
+      <SFixedContainer height='calc(100vh - 22rem)' margin='1rem 0 0'>
+        <BillableListDetail searchClaim={searchClaim} />
+      </SFixedContainer>
     </SFixedContainer>
   )
 }
