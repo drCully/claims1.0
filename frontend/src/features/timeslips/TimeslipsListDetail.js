@@ -43,7 +43,6 @@ const TimeslipsListDetail = () => {
     {
       headerName: 'Claim',
       field: 'claim.name',
-
       flex: 2,
       maxWidth: 300,
       sortable: true,

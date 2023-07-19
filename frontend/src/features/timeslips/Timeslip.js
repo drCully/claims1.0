@@ -72,6 +72,7 @@ const Timeslip = () => {
   if (!id) {
     id = undefined
   }
+
   const { data } = useTimeslipQuery(id)
   const { data: claimlookup } = useClaimLookupQuery()
   const { data: userlookup } = useUserLookupQuery()
@@ -150,7 +151,7 @@ const Timeslip = () => {
                 value={claim}
                 disabled={billed}
                 onChange={handleInputChange}
-                width={'15rem'}
+                width={'24rem'}
               >
                 <option value=''> -- Select a Claim -- </option>
                 {claimlookup?.map((claim) => (

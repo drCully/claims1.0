@@ -16,6 +16,8 @@ import { ROLES } from './config/roles'
 import Billings from './features/billings/Billing'
 import Charge from './features/charges/Charge'
 import Charges from './features/charges/ChargesList'
+import Check from './features/checks/Check'
+import Checks from './features/checks/ChecksList'
 import ClaimAdd from './features/claims/ClaimAdd'
 import Claim from './features/claims/Claim'
 import ClaimDashboard from './features/claims/dashboard/Dashboard'
@@ -69,6 +71,11 @@ function App() {
                   <Route index element={<Charges />} />
                   <Route path=':id' element={<Charge />} />
                   <Route path='add' element={<Charge />} />
+                </Route>
+                <Route path='checks'>
+                  <Route index element={<Checks />} />
+                  <Route path=':id' element={<Check />} />
+                  <Route path='add' element={<Check />} />
                 </Route>
                 <Route path='claims'>
                   <Route index element={<Claims />} />

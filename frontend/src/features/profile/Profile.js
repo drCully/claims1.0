@@ -28,7 +28,7 @@ const Profile = () => {
               navigate(-1)
             }}
           >
-            Go Back
+            Back
           </SButton>
         </SFixedContainer>
       </SFlexContainer>

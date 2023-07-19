@@ -29,7 +29,9 @@ const ChargesList = () => {
           Add New
         </SButtonLink>
       </SFlexContainer>
-      <ChargesListDetail searchCharge={searchCharge} />
+      <SFixedContainer height='calc(100vh - 15rem)' margin='1rem 0 0'>
+        <ChargesListDetail searchCharge={searchCharge} />
+      </SFixedContainer>
     </SFixedContainer>
   )
 }

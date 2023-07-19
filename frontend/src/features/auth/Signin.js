@@ -111,7 +111,7 @@ const Signin = () => {
 
         <SFlexContainer>
           <SButton background='green' type='submit' margin='.5rem'>
-            <FaSignInAlt /> Signin
+            <FaSignInAlt /> Sign In
           </SButton>
 
           <SButton

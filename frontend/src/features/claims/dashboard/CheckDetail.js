@@ -1,20 +1,17 @@
 import { useEffect, useState, useMemo } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { Link, useParams } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { toast } from 'react-toastify'
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa'
 import { AgGridReact } from 'ag-grid-react'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
-import { SButton, SButtonLink } from '../../../styles/buttonStyles'
+import { SButtonLink } from '../../../styles/buttonStyles'
 
 import {
-  useTimeslipsQuery,
-  useDeleteTimeslipMutation,
-} from '../../timeslips/timeslipsApiSlice'
-
-import { setLastClaim } from '../../sessionSlice'
+  useChecksQuery,
+  useDeleteCheckMutation,
+} from '../../checks/checksApiSlice'
 
 const numberFormatter = (params) => {
   return new Intl.NumberFormat('en-US', {
@@ -23,19 +20,13 @@ const numberFormatter = (params) => {
   }).format(params.value)
 }
 
-const TimeDetail = () => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+const CheckDetail = () => {
   let { id } = useParams()
 
-  const {
-    data: timeslips,
-    isLoading,
-    isSuccess,
-  } = useTimeslipsQuery(`claim=${id}`)
-  const [deleteTimeslip] = useDeleteTimeslipMutation()
+  const { data: checks, isLoading, isSuccess } = useChecksQuery(`claim=${id}`)
+  const [deleteCheck] = useDeleteCheckMutation()
 
-  const [rowData, setRowData] = useState(timeslips)
+  const [rowData, setRowData] = useState(checks)
   const [columnDefs] = useState([
     {
       headerName: 'Date',
@@ -43,37 +34,29 @@ const TimeDetail = () => {
       valueFormatter: (params) => {
         return format(parseISO(params.value), 'MM/dd/yyyy')
       },
-      minWidth: 145,
+      width: 100,
+      minWidth: 95,
+      maxWidth: 150,
       sortable: true,
       sort: 'asc',
     },
     {
-      headerName: 'TK',
-      field: 'timekeeper.initials',
+      field: 'number',
+      width: 100,
+      minWidth: 95,
+      maxWidth: 150,
       sortable: true,
-      width: 60,
-      minWidth: 60,
-      maxWidth: 80,
-    },
-    { field: 'description', flex: 4, wrapText: true, autoHeight: true },
-    {
-      field: 'hours',
-      valueFormatter: numberFormatter,
-      type: 'rightAligned',
-      maxWidth: 90,
     },
     {
-      field: 'rate',
-      valueFormatter: numberFormatter,
-      type: 'rightAligned',
-      maxWidth: 90,
+      headerName: 'Payee',
+      field: 'payee.name',
+      flex: 3,
+      width: 300,
+      minWidth: 100,
+      sortable: true,
     },
     {
       field: 'amount',
-      valueGetter: (params) => {
-        return params.data.hours * params.data.rate
-      },
-
       valueFormatter: numberFormatter,
       type: 'rightAligned',
       maxWidth: 120,
@@ -83,7 +66,7 @@ const TimeDetail = () => {
       field: 'id',
       cellRenderer: (params) => (
         <div>
-          <Link to={`/timeslips/${params.data._id}`}>
+          <Link to={`/checks/${params.data._id}`}>
             <FaRegEdit
               style={{
                 color: 'green',
@@ -113,23 +96,18 @@ const TimeDetail = () => {
     }
   }, [])
 
-  const handleAddTime = () => {
-    dispatch(setLastClaim(id))
-    navigate('/timeslips/add')
-  }
-
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this time record? ')) {
-      await deleteTimeslip(id)
-      toast.success('Time Record Deleted Successfully')
+    if (window.confirm('Are you sure you want to delete this check record? ')) {
+      await deleteCheck(id)
+      toast.success('Check Record Deleted Successfully')
     }
   }
 
   useEffect(() => {
     if (isSuccess) {
-      setRowData(timeslips)
+      setRowData(checks)
     }
-  }, [isSuccess, timeslips])
+  }, [isSuccess, checks])
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -138,12 +116,12 @@ const TimeDetail = () => {
   return (
     <>
       <SButtonLink
-        onClick={handleAddTime}
+        to={'/checks/add'}
         margin={'0 0 .3rem 0'}
         fsize={'.9rem'}
         padding={'0.1rem 0.4rem'}
       >
-        Add Time
+        Add Check
       </SButtonLink>
       <div
         className='ag-theme-alpine'
@@ -158,4 +136,4 @@ const TimeDetail = () => {
     </>
   )
 }
-export default TimeDetail
+export default CheckDetail

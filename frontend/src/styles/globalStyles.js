@@ -99,7 +99,7 @@ export const GlobalStyles = createGlobalStyle`
     }
 
     .tab-content {
-      height: calc(100vh - 25rem);
+      height: calc(100vh - 23rem);
     }
     
 `

@@ -136,7 +136,7 @@ export function InvoiceAddDetail() {
   }
 
   return (
-    <div className='ag-theme-alpine' style={{ height: 500 }}>
+    <div className='ag-theme-alpine' style={{ height: '100%' }}>
       <AgGridReact
         ref={gridRef}
         rowData={rowData}

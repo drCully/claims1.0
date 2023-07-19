@@ -66,7 +66,7 @@ const ProfileCharges = () => {
             navigate(-1)
           }}
         >
-          Go Back
+          Back
         </SButton>
       </SFlexContainer>
       <ProfileChargesDetail

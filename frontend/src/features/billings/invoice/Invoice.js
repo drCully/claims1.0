@@ -118,7 +118,7 @@ const Invoice = () => {
             width='6rem'
             onClick={handleDone}
           >
-            Done
+            Cancel
           </SButton>
         </SFlexCol>
       </SFlexContainer>
@@ -127,7 +127,7 @@ const Invoice = () => {
         <SCardFull
           width={`${s.lg}`}
           maxwidth={`${s.xl}`}
-          height='40rem'
+          height='calc(100vh - 17rem)'
           overflow='auto'
         >
           <InvoiceToPrint ref={(el) => (componentRef = el)} />

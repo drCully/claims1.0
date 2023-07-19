@@ -24,7 +24,7 @@ Navbar.defaultProps = {
         },
         {
           label: 'Disbursements',
-          link: '/disbursements',
+          link: '/checks',
         },
         {
           label: 'Billing',

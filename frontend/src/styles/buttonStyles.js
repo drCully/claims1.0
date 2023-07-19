@@ -13,7 +13,7 @@ export const SButton = styled.button`
   cursor: pointer;
   border: 1px solid transparent;
   margin: ${({ margin }) => (margin ? margin : '0')};
-  padding: 0.375rem 0.75rem;
+  padding: ${({ padding }) => (padding ? padding : '0.375rem 0.75rem')};
   font-size: 1rem;
   border-radius: 0.25rem;
   opacity: 0.9;

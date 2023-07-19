@@ -112,7 +112,7 @@ const Claim = () => {
                 width='100%'
               />
             </SFormControl2>
-            <SFormControl2 width='20rem'>
+            <SFormControl2 width='22rem'>
               <SLabel htmlFor='name'>Our Reference</SLabel>
               <SInput
                 type='text'
@@ -257,7 +257,7 @@ const Claim = () => {
                   navigate(-1)
                 }}
               >
-                Go Back
+                Back
               </SButton>
             )}
           </SFixedContainer>

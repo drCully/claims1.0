@@ -66,7 +66,7 @@ const ProfileHours = () => {
             navigate(-1)
           }}
         >
-          Go Back
+          Back
         </SButton>
       </SFlexContainer>
       <ProfileHoursDetail

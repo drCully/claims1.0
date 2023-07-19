@@ -13,6 +13,7 @@ import Tabs from '../../../components/Tabs/Tabs'
 import Claim from '../Claim'
 import TimeDetail from './TimeDetail'
 import ChargeDetail from './ChargeDetail'
+import CheckDetail from './CheckDetail'
 
 const ClaimDashboard = () => {
   const navigate = useNavigate()
@@ -36,7 +37,11 @@ const ClaimDashboard = () => {
                   <ChargeDetail />
                 </SCard>
               </div>
-              <div label='Disbursements'>Disbursements Detail HERE</div>
+              <div label='Disbursements'>
+                <SCard style={{ height: 'calc(100vh - 23rem)' }}>
+                  <CheckDetail />
+                </SCard>
+              </div>
               <div label='Billing'>Billing Detail HERE</div>
             </Tabs>
           </SFixedContainer>
