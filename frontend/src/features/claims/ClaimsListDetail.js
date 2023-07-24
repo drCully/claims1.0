@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import { format, parseISO } from 'date-fns'
 import { toast } from 'react-toastify'
 import { FaCheck, FaTimes, FaRegEye, FaDollarSign } from 'react-icons/fa'
@@ -7,6 +8,8 @@ import { AgGridReact } from 'ag-grid-react'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 import { useClaimsQuery, useDeleteClaimMutation } from './claimsApiSlice'
+
+import { setLastClaim } from '../sessionSlice'
 
 const ClaimsListDetail = ({ searchClaim, activeStatus }) => {
   const { data: claims, isLoading } = useClaimsQuery(
@@ -17,6 +20,8 @@ const ClaimsListDetail = ({ searchClaim, activeStatus }) => {
   )
 
   const [deleteClaim] = useDeleteClaimMutation()
+
+  const dispatch = useDispatch()
 
   const gridRef = useRef()
   const [rowData, setRowData] = useState()
@@ -91,23 +96,12 @@ const ClaimsListDetail = ({ searchClaim, activeStatus }) => {
     }
   }, [])
 
-  const onGridReady = useCallback((params) => {
-    setRowData(claims)
-  }, [])
-
   useEffect(() => {
     setRowData(claims)
   }, [claims])
 
   if (isLoading) {
     return <div>Loading...</div>
-  }
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this claim? ')) {
-      await deleteClaim(id)
-      toast.success('User Deleted Successfully')
-    }
   }
 
   return (

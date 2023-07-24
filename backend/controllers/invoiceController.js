@@ -22,11 +22,14 @@ const createInvoice = asyncHandler(async (req, res) => {
 // @route   GET /invoices
 // @access  Public
 const getInvoices = asyncHandler(async (req, res) => {
-  const { number, client, status } = req.query
+  const { number, claim, client, status } = req.query
 
   let condition = {}
   if (number) {
     condition['number'] = { $regex: new RegExp(number), $options: 'i' }
+  }
+  if (claim) {
+    condition['claim'] = claim
   }
   if (client) {
     condition['client'] = { $regex: new RegExp(client), $options: 'i' }

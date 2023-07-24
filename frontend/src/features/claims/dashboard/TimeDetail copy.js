@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
 import { format, parseISO } from 'date-fns'
 import { toast } from 'react-toastify'
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa'
@@ -7,13 +8,13 @@ import { AgGridReact } from 'ag-grid-react'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 import { SButton } from '../../../styles/buttonStyles'
-import { SFlexContainer } from '../../../styles/containerStyles'
-import { SSelect } from '../../../styles/formStyles'
 
 import {
   useTimeslipsQuery,
   useDeleteTimeslipMutation,
 } from '../../timeslips/timeslipsApiSlice'
+
+import { setLastClaim } from '../../sessionSlice'
 
 const numberFormatter = (params) => {
   return new Intl.NumberFormat('en-US', {
@@ -23,12 +24,7 @@ const numberFormatter = (params) => {
 }
 
 const TimeDetail = () => {
-  const [billedStatus, setBilledStatus] = useState('')
-  const onChangeBilledStatus = (event) => {
-    const billedStatus = event.target.value
-    setBilledStatus(billedStatus)
-  }
-
+  const dispatch = useDispatch()
   const navigate = useNavigate()
   let { id } = useParams()
 
@@ -36,7 +32,7 @@ const TimeDetail = () => {
     data: timeslips,
     isLoading,
     isSuccess,
-  } = useTimeslipsQuery(`claim=${id}&billed=${billedStatus}`)
+  } = useTimeslipsQuery(`claim=${id}`)
   const [deleteTimeslip] = useDeleteTimeslipMutation()
 
   const [rowData, setRowData] = useState(timeslips)
@@ -83,16 +79,6 @@ const TimeDetail = () => {
       maxWidth: 120,
     },
     {
-      headerName: 'Status',
-      field: 'billed',
-      cellRenderer: (params) => (
-        <div style={{ textAlign: 'center' }}>
-          {params.data.billed ? 'Billed' : 'Unbilled'}
-        </div>
-      ),
-      maxWidth: 90,
-    },
-    {
       headerName: 'Actions',
       field: 'id',
       cellRenderer: (params) => (
@@ -128,6 +114,7 @@ const TimeDetail = () => {
   }, [])
 
   const handleAddTime = () => {
+    dispatch(setLastClaim(id))
     navigate('/timeslips/add')
   }
 
@@ -150,28 +137,14 @@ const TimeDetail = () => {
 
   return (
     <>
-      <SFlexContainer>
-        <SSelect
-          onChange={(event) => {
-            onChangeBilledStatus(event)
-          }}
-          width='10rem'
-          style={{ margin: '0 1rem .3rem' }}
-        >
-          <option value=''>Show All</option>
-          <option value='false'>Show Unbilled</option>
-          <option value='true'>Show Billed</option>
-        </SSelect>
-        <SButton
-          onClick={handleAddTime}
-          margin={'0 0 .3rem 0'}
-          fsize={'.9rem'}
-          padding={'0.1rem 0.4rem'}
-        >
-          Add Time
-        </SButton>
-      </SFlexContainer>
-
+      <SButton
+        onClick={handleAddTime}
+        margin={'0 0 .3rem 0'}
+        fsize={'.9rem'}
+        padding={'0.1rem 0.4rem'}
+      >
+        Add Time
+      </SButton>
       <div
         className='ag-theme-alpine'
         style={{ height: 'calc(100vh - 27rem)' }}

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { toast } from 'react-toastify'
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa'
@@ -7,6 +7,8 @@ import { AgGridReact } from 'ag-grid-react'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 import { SButtonLink } from '../../../styles/buttonStyles'
+import { SFlexContainer } from '../../../styles/containerStyles'
+import { SSelect } from '../../../styles/formStyles'
 
 import {
   useChargesQuery,
@@ -21,9 +23,19 @@ const numberFormatter = (params) => {
 }
 
 const ChargeDetail = () => {
+  const [billedStatus, setBilledStatus] = useState('')
+  const onChangeBilledStatus = (event) => {
+    const billedStatus = event.target.value
+    setBilledStatus(billedStatus)
+  }
+
   let { id } = useParams()
 
-  const { data: charges, isLoading, isSuccess } = useChargesQuery(`claim=${id}`)
+  const {
+    data: charges,
+    isLoading,
+    isSuccess,
+  } = useChargesQuery(`claim=${id}&billed=${billedStatus}`)
   const [deleteCharge] = useDeleteChargeMutation()
 
   const [rowData, setRowData] = useState(charges)
@@ -44,6 +56,16 @@ const ChargeDetail = () => {
       valueFormatter: numberFormatter,
       type: 'rightAligned',
       maxWidth: 120,
+    },
+    {
+      headerName: 'Status',
+      field: 'billed',
+      cellRenderer: (params) => (
+        <div style={{ textAlign: 'center' }}>
+          {params.data.billed ? 'Billed' : 'Unbilled'}
+        </div>
+      ),
+      maxWidth: 90,
     },
     {
       headerName: 'Actions',
@@ -101,14 +123,27 @@ const ChargeDetail = () => {
 
   return (
     <>
-      <SButtonLink
-        to={'/charges/add'}
-        margin={'0 0 .3rem 0'}
-        fsize={'.9rem'}
-        padding={'0.1rem 0.4rem'}
-      >
-        Add Charge
-      </SButtonLink>
+      <SFlexContainer>
+        <SSelect
+          onChange={(event) => {
+            onChangeBilledStatus(event)
+          }}
+          width='10rem'
+          style={{ margin: '0 1rem .3rem' }}
+        >
+          <option value=''>Show All</option>
+          <option value='false'>Show Unbilled</option>
+          <option value='true'>Show Billed</option>
+        </SSelect>
+        <SButtonLink
+          to={'/charges/add'}
+          margin={'0 0 .3rem 0'}
+          fsize={'.9rem'}
+          padding={'0.1rem 0.4rem'}
+        >
+          Add Charge
+        </SButtonLink>
+      </SFlexContainer>
       <div
         className='ag-theme-alpine'
         style={{ height: 'calc(100vh - 27rem)' }}

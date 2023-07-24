@@ -84,7 +84,7 @@ const Invoice = () => {
 
   const handleDone = () => {
     dispatch(clearBilling())
-    navigate('/billings')
+    navigate(-1)
   }
 
   return (

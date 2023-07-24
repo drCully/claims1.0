@@ -44,7 +44,7 @@ Navbar.defaultProps = {
     },
 
     {
-      label: 'Other',
+      label: 'More',
       link: null,
       submenu: [
         {

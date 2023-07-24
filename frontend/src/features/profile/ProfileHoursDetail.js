@@ -46,7 +46,7 @@ export function ProfileHoursDetail({
       toast.success('Time Record Deleted Successfully')
     }
   }
-  console.log('TableData: ', tableData)
+
   return <TableInstance tableData={tableData} handleDelete={handleDelete} />
 }
 

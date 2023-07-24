@@ -132,7 +132,7 @@ const Timeslip = () => {
             <SFormControl margin='0 2em 0 0'>
               <SLabel htmlFor='date'>Date</SLabel>
               <SInput
-                type='Date'
+                type='date'
                 id='date'
                 name='date'
                 value={format(parseISO(date), 'yyyy-MM-dd')}

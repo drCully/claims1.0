@@ -101,7 +101,7 @@ const Charge = () => {
   const handleCancel = () => {
     setEditMode(false)
     setFormValues({ ...initialValues })
-    navigate('/charges')
+    navigate(-1)
   }
 
   return (
@@ -128,7 +128,7 @@ const Charge = () => {
         <SFormControl>
           <SLabel htmlFor='date'>Charge Date</SLabel>
           <SInput
-            type='Date'
+            type='date'
             id='date'
             name='date'
             value={format(parseISO(date), 'yyyy-MM-dd')}

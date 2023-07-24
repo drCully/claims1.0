@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 
 const initialState = {
   asOfDate: format(new Date(), 'yyyy-MM-dd'),
-  claimId: '',
+  claimId: undefined,
   timeItems: [],
   selectedTime: [],
   timeAmount: 0,
@@ -41,8 +41,8 @@ const billingSlice = createSlice({
       state.chargeAmount = action.payload
     },
     clearBilling: (state, action) => {
-      state.asOfDate = format(new Date(), 'yyyy-MM-dd')
-      //state.claimId = ''
+      //state.asOfDate = format(new Date(), 'yyyy-MM-dd')
+      state.claimId = undefined
       state.timeItems = []
       state.selectedTime = []
       state.timeAmount = 0

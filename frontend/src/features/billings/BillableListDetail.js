@@ -14,14 +14,14 @@ const numberFormatter = (params) => {
   }).format(params.value)
 }
 
-const BillableListDetail = ({ searchClaim }) => {
+const BillableListDetail = () => {
   const { asOfDate } = useSelector((state) => state.billing)
 
   const {
     data: billable,
     isLoading,
     isSuccess,
-  } = useBillingsQuery(`claim=${searchClaim}&lastdate=${asOfDate}`, {
+  } = useBillingsQuery(`lastdate=${asOfDate}`, {
     refetchOnMountOrArgChange: true,
   })
 

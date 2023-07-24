@@ -171,7 +171,7 @@ const ClaimAdd = () => {
         <SFormControl>
           <SLabel htmlFor='dol'>DOL/DOI</SLabel>
           <SInput
-            type='Date'
+            type='date'
             id='dol'
             name='dol'
             value={format(parseISO(dol), 'yyyy-MM-dd')}

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { toast } from 'react-toastify'
 import { FaRegEdit, FaRegTrashAlt } from 'react-icons/fa'
@@ -7,6 +7,7 @@ import { AgGridReact } from 'ag-grid-react'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 import { SButtonLink } from '../../../styles/buttonStyles'
+import { SFlexContainer } from '../../../styles/containerStyles'
 
 import {
   useChecksQuery,
@@ -115,14 +116,16 @@ const CheckDetail = () => {
 
   return (
     <>
-      <SButtonLink
-        to={'/checks/add'}
-        margin={'0 0 .3rem 0'}
-        fsize={'.9rem'}
-        padding={'0.1rem 0.4rem'}
-      >
-        Add Check
-      </SButtonLink>
+      <SFlexContainer>
+        <SButtonLink
+          to={'/charges/add'}
+          margin={'0 0 .3rem 0'}
+          fsize={'.9rem'}
+          padding={'0.1rem 0.4rem'}
+        >
+          Add Check
+        </SButtonLink>
+      </SFlexContainer>
       <div
         className='ag-theme-alpine'
         style={{ height: 'calc(100vh - 27rem)' }}

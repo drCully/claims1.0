@@ -22,14 +22,20 @@ const createCheck = asyncHandler(async (req, res) => {
 // @route   GET /checks
 // @access  Public
 const getChecks = asyncHandler(async (req, res) => {
-  const { number, isactive } = req.query
+  const { number, claim, billable, billed } = req.query
 
   let condition = {}
   if (number) {
     condition['number'] = { $regex: new RegExp(number), $options: 'i' }
   }
-  if (isactive) {
-    condition['isactive'] = isactive
+  if (claim) {
+    condition['claim'] = claim
+  }
+  if (billable) {
+    condition['billable'] = billable
+  }
+  if (billed) {
+    condition['billed'] = billed
   }
 
   const checks = await Check.find(condition)

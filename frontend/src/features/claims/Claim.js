@@ -52,6 +52,7 @@ const Claim = () => {
   const navigate = useNavigate()
 
   let { id } = useParams()
+
   const { data: claim, isSuccess } = useClaimQuery(id)
   const { data: userlookup } = useUserLookupQuery()
   const { data: clientlookup } = useClientLookupQuery()
@@ -200,7 +201,7 @@ const Claim = () => {
             <SFormControl2 width='10rem'>
               <SLabel htmlFor='dol'>DOL/DOI</SLabel>
               <SInput
-                type='Date'
+                type='date'
                 id='dol'
                 name='dol'
                 value={format(parseISO(dol), 'yyyy-MM-dd')}

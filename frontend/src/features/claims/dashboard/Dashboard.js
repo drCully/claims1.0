@@ -1,22 +1,23 @@
-import { useNavigate } from 'react-router-dom'
-import { s } from '../../../styles/variables'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   SFixedContainer,
-  SFlexCol,
   SFlexContainer,
-  SFlexRow,
 } from '../../../styles/containerStyles'
 import { SCard } from '../../../styles/cardStyles'
-import { SButton, SButtonLink } from '../../../styles/buttonStyles'
 import Tabs from '../../../components/Tabs/Tabs'
 
 import Claim from '../Claim'
 import TimeDetail from './TimeDetail'
 import ChargeDetail from './ChargeDetail'
 import CheckDetail from './CheckDetail'
+import BillingDetail from './BillingDetail'
+import { setLastClaim } from '../../sessionSlice'
 
 const ClaimDashboard = () => {
-  const navigate = useNavigate()
+  let { id } = useParams()
+  const dispatch = useDispatch()
+  dispatch(setLastClaim(id))
 
   return (
     <>
@@ -42,7 +43,11 @@ const ClaimDashboard = () => {
                   <CheckDetail />
                 </SCard>
               </div>
-              <div label='Billing'>Billing Detail HERE</div>
+              <div label='Billings'>
+                <SCard style={{ height: 'calc(100vh - 23rem)' }}>
+                  <BillingDetail />
+                </SCard>
+              </div>
             </Tabs>
           </SFixedContainer>
         </SFixedContainer>

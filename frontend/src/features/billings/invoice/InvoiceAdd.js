@@ -117,6 +117,7 @@ const InvoiceAdd = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
     const invoiceResult = await createInvoice({
       date: asOfDate,
       claim: claimId,
@@ -193,7 +194,7 @@ const InvoiceAdd = () => {
                 <div>
                   <SLabel htmlFor='date'>Date</SLabel>
                   <SInput
-                    type='Date'
+                    type='date'
                     id='date'
                     name='date'
                     defaultValue={format(parseISO(asOfDate), 'yyyy-MM-dd')}
